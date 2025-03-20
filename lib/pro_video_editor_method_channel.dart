@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:pro_video_editor/shared/utils/parser/double_parser.dart';
+import 'package:pro_video_editor/shared/utils/parser/int_parser.dart';
 
 import '/core/models/video/editor_video_model.dart';
 import '/core/models/video/video_informations_model.dart';
@@ -21,19 +23,46 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
 
   @override
   Future<VideoInformations> getVideoInformations(EditorVideo value) async {
-    final response = await methodChannel
-            .invokeMethod<Map<dynamic, dynamic>>('getVideoInformations') ??
+    var sp = Stopwatch()..start();
+    var videoBytes = await value.safeByteArray();
+
+    final response = await methodChannel.invokeMethod<Map<dynamic, dynamic>>(
+          'getVideoInformations',
+          videoBytes,
+        ) ??
         {};
+
+    print('Read time ${sp.elapsedMilliseconds}ms');
+    print(response);
+
     return VideoInformations(
-      duration: response['duration'] ?? Duration.zero,
+      duration: Duration(milliseconds: safeParseInt(response['duration'])),
+      format: response['format'],
+      fileSize: response['fileSize'] ?? 0,
+      resolution: Size(
+        safeParseDouble(response['width']),
+        safeParseDouble(response['height']),
+      ),
     );
   }
 
   @override
   Future<List<Uint8List>> createVideoThumbnails(
       CreateVideoThumbnail value) async {
-    final thumbnails = await methodChannel
-        .invokeMethod<List<Uint8List>>('createVideoThumbnails');
-    return thumbnails ?? [];
+    var sp = Stopwatch()..start();
+    var videoBytes = await value.video.safeByteArray();
+
+    final response = await methodChannel.invokeMethod<List<Uint8List>>(
+      'createVideoThumbnails',
+      {
+        'videoBytes': videoBytes,
+        'timestamps': value.timestamps.map((el) => el.inMilliseconds).toList(),
+        'imageWidth': value.imageWidth,
+      },
+    );
+
+    print('Read time ${sp.elapsedMilliseconds}ms');
+    print(response);
+    return [];
   }
 }

@@ -3,14 +3,14 @@ import 'package:pro_video_editor/core/models/video/editor_video_model.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
 import 'package:pro_video_editor_example/core/constants/example_constants.dart';
 
-class GenerateThumbnails extends StatefulWidget {
-  const GenerateThumbnails({super.key});
+class ThumbnailExamplePage extends StatefulWidget {
+  const ThumbnailExamplePage({super.key});
 
   @override
-  State<GenerateThumbnails> createState() => _GenerateThumbnailsState();
+  State<ThumbnailExamplePage> createState() => _ThumbnailExamplePageState();
 }
 
-class _GenerateThumbnailsState extends State<GenerateThumbnails> {
+class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
   final List<MemoryImage> _thumbnails = [];
 
   void _getVideoInformations() async {

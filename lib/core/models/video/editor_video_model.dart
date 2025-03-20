@@ -53,7 +53,7 @@ class EditorVideo {
 
   /// A future that retrieves the image data as a `Uint8List` from the
   /// appropriate source based on the `EditorVideoType`.
-  Future<Uint8List> safeByteArray(BuildContext context) async {
+  Future<Uint8List> safeByteArray() async {
     Uint8List bytes;
     switch (type) {
       case EditorVideoType.memory:
@@ -68,14 +68,6 @@ class EditorVideo {
         bytes = await fetchImageAsUint8List(networkUrl!);
         break;
     }
-
-    if (!context.mounted) return bytes;
-
-    await precacheImage(
-      MemoryImage(bytes),
-      context,
-      size: MediaQuery.sizeOf(context),
-    );
 
     byteArray = bytes;
 

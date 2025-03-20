@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
 
-import '/features/thumbnail/generate_thumbnails.dart';
+import 'features/thumbnail/thumbnail_example_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -84,7 +84,7 @@ class _HomePageState extends State<HomePage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => GenerateThumbnails()),
+                MaterialPageRoute(builder: (_) => ThumbnailExamplePage()),
               );
             },
           ),
