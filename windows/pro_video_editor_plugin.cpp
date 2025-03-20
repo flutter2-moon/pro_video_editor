@@ -12,6 +12,8 @@
 
 #include <memory>
 #include <sstream>
+#include <vector>
+#include <string>
 
 namespace pro_video_editor {
 
@@ -51,6 +53,10 @@ void ProVideoEditorPlugin::HandleMethodCall(
       version_stream << "7";
     }
     result->Success(flutter::EncodableValue(version_stream.str()));
+  } else if (method_call.method_name().compare("getVideoInformations") == 0) {
+    result->NotImplemented();
+  } else if (method_call.method_name().compare("createVideoThumbnails") == 0) {
+    result->NotImplemented();
   } else {
     result->NotImplemented();
   }

@@ -1,8 +1,3 @@
-
-import 'pro_video_editor_platform_interface.dart';
-
-class ProVideoEditor {
-  Future<String?> getPlatformVersion() {
-    return ProVideoEditorPlatform.instance.getPlatformVersion();
-  }
-}
+export '/core/models/thumbnail/create_video_thumbnail_model.dart';
+export '/shared/utils/converters.dart';
+export 'core/services/video_utils_service.dart';
