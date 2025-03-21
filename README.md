@@ -8,8 +8,8 @@
 | Platform       | `getVideoInformation`  | `createVideoThumbnails`   | `generateVideoFromWidget` |
 |----------------|-------------------------|---------------------------|---------------------------|
 | Android        | ✅                      | ✅                       | ❌                        |
-| iOS            | ❌                      | ❌                       | ❌                        |
+| iOS            | ✅                      | ✅                       | ❌                        |
 | Web            | ✅                      | ✅                       | ❌                        |
-| macOS          | ❌                      | ❌                       | ❌                        |
+| macOS          | ✅                      | ✅                       | ❌                        |
 | Windows        | ✅                      | ❌                       | ❌                        |
 | Linux          | ❌                      | ❌                       | ❌                        |
