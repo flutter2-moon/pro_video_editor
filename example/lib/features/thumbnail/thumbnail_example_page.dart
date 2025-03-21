@@ -15,17 +15,19 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
   List<MemoryImage> _thumbnails = [];
 
   final int _exampleImageCount = 7;
+  VideoInformation? _informations;
 
-  Future<VideoInformation> _getVideoInformation() async {
-    var informations = await VideoUtilsService.instance.getVideoInformation(
+  Future<void> _setVideoInformation() async {
+    _informations = await VideoUtilsService.instance.getVideoInformation(
       EditorVideo(assetPath: kVideoEditorExampleAssetPath),
     );
-
-    return informations;
+    setState(() {});
   }
 
   void _generateThumbnails() async {
-    var totalDuration = (await _getVideoInformation()).duration;
+    await _setVideoInformation();
+    var info = _informations!;
+    var totalDuration = info.duration;
 
     if (!mounted) return;
 
@@ -41,7 +43,8 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
         }),
         imageWidth: MediaQuery.sizeOf(context).width /
             _exampleImageCount *
-            MediaQuery.devicePixelRatioOf(context),
+            MediaQuery.devicePixelRatioOf(context) *
+            info.resolution.aspectRatio,
       ),
     );
 
@@ -58,10 +61,19 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
         children: [
           Center(
             child: FilledButton(
-              onPressed: _getVideoInformation,
+              onPressed: _setVideoInformation,
               child: const Text('Log video informations'),
             ),
           ),
+          if (_informations != null)
+            Column(
+              children: [
+                Text('FileSize: ${_informations!.fileSize}'),
+                Text('Format: ${_informations!.format}'),
+                Text('Resolution: ${_informations!.resolution}'),
+                Text('Duration: ${_informations!.duration.inMilliseconds}ms'),
+              ],
+            ),
           const SizedBox(height: 40),
           Center(
             child: FilledButton(

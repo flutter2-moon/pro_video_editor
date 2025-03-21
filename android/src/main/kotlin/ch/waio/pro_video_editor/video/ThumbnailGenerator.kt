@@ -1,66 +1,79 @@
+
+// =======================
+// ThumbnailGenerator.kt
+// =======================
+
 package ch.waio.pro_video_editor.video
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
-import android.util.Base64
-import java.io.ByteArrayOutputStream
+import android.util.Log
+import com.arthenica.ffmpegkit.FFmpegKit
+import com.arthenica.ffmpegkit.ReturnCode
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
-import android.util.Log
+import ch.waio.pro_video_editor.video.mimeToExtension
 
 class ThumbnailGenerator(private val context: Context) {
 
-    fun generateThumbnails(
+    suspend fun generateThumbnails(
         videoBytes: ByteArray,
         timestamps: List<Long>,
         format: String,
         width: Int
-    ): List<ByteArray> {
-        val thumbnails = mutableListOf<ByteArray>()
-        val tempVideoFile = writeBytesToTempFile(videoBytes)
+    ): List<ByteArray> = withContext(Dispatchers.IO) {
+        val TAG = "FFmpegThumbnailGen"
+        val videoFormat = extractMimeType(videoBytes)?.let { mimeToExtension(it) } ?: "mp4"
+        val tempVideoFile = writeBytesToTempFile(videoBytes, videoFormat)
+        val thumbnails = MutableList<ByteArray?>(timestamps.size) { null }
 
-        val retriever = MediaMetadataRetriever()
-        try {
-            retriever.setDataSource(tempVideoFile.absolutePath)
+        val jobs = timestamps.mapIndexed { index, timeMs ->
+            async {
+                val startTime = System.currentTimeMillis()
+                val tempImageFile = File.createTempFile("thumb_$index", ".$format", context.cacheDir)
+                val timestampStr = String.format("%.3f", timeMs / 1000.0)
 
-            for (timeMs in timestamps) {
-                val frame = retriever.getFrameAtTime(timeMs * 1000, MediaMetadataRetriever.OPTION_CLOSEST)
-                if (frame != null) {
-                    val scaled = Bitmap.createScaledBitmap(
-                        frame,
-                        width,
-                        (width * frame.height) / frame.width,
-                        true
-                    )
-                    val outputStream = ByteArrayOutputStream()
-                    when (format.lowercase()) {
-                        "jpeg", "jpg" -> scaled.compress(Bitmap.CompressFormat.JPEG, 90, outputStream)
-                        "png" -> scaled.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-                        "webp" -> scaled.compress(Bitmap.CompressFormat.WEBP, 90, outputStream)
-                        else -> throw IllegalArgumentException("Unsupported format: $format")
-                    }
-                    thumbnails.add(outputStream.toByteArray())
-                    outputStream.close()
+                val command = "-y -ss $timestampStr -i ${tempVideoFile.absolutePath} -vframes 1 -vf scale=$width:-2 ${tempImageFile.absolutePath}"
+                val session = FFmpegKit.execute(command)
+                val duration = System.currentTimeMillis() - startTime
+
+                if (ReturnCode.isSuccess(session.returnCode)) {
+                    val bytes = tempImageFile.readBytes()
+                    thumbnails[index] = bytes
+                    Log.d(TAG, "[$index] ✅ $timestampStr s in $duration ms (${bytes.size} bytes)")
+                } else {
+                    Log.w(TAG, "[$index] ❌ Failed at $timestampStr s in $duration ms")
                 }
-            }
 
+                tempImageFile.delete()
+            }
+        }
+
+        jobs.awaitAll()
+        tempVideoFile.delete()
+        return@withContext thumbnails.filterNotNull()
+    }
+
+    private fun extractMimeType(bytes: ByteArray): String? {
+        val tempFile = writeBytesToTempFile(bytes, "tmp")
+        val retriever = MediaMetadataRetriever()
+        return try {
+            retriever.setDataSource(tempFile.absolutePath)
+            retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE)
         } catch (e: Exception) {
-            e.printStackTrace()
+            null
         } finally {
             retriever.release()
-            tempVideoFile.delete() // clean up
+            tempFile.delete()
         }
-
-        return thumbnails
     }
 
-    private fun writeBytesToTempFile(bytes: ByteArray): File {
-        val tempFile = File.createTempFile("video_temp", ".mp4", context.cacheDir)
+    private fun writeBytesToTempFile(bytes: ByteArray, format: String): File {
+        val tempFile = File.createTempFile("video_temp", ".$format", context.cacheDir)
         FileOutputStream(tempFile).use {
             it.write(bytes)
-            it.flush()
         }
         return tempFile
-    }
+    } 
 }

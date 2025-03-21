@@ -6,6 +6,7 @@ import android.os.Environment
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import ch.waio.pro_video_editor.video.mimeToExtension
 
 class VideoProcessor(private val context: Context) {
 
@@ -63,22 +64,6 @@ class VideoProcessor(private val context: Context) {
             tempFile
         } catch (e: IOException) {
             null
-        }
-    }
-
-    @Suppress("unused")
-    private fun getExtensionFromMimeType(mimeType: String): String {
-        return when (mimeType) {
-            "video/mp4" -> "mp4"
-            "video/webm" -> "webm"
-            "video/3gpp" -> "3gp"
-            "video/quicktime" -> "mov"
-            "video/x-msvideo" -> "avi"
-            "video/x-matroska" -> "mkv"
-            "video/x-ms-wmv" -> "wmv"
-            "video/x-flv" -> "flv"
-            "video/mpeg" -> "mpg"
-            else -> "mp4"
         }
     }
 }

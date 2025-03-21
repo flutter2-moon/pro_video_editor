@@ -7,12 +7,14 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import ch.waio.pro_video_editor.video.VideoProcessor
 import ch.waio.pro_video_editor.video.ThumbnailGenerator
+import kotlinx.coroutines.*
 
 /** ProVideoEditorPlugin */
 class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
     private lateinit var channel: MethodChannel
     private lateinit var videoProcessor: VideoProcessor
     private lateinit var thumbnailGenerator: ThumbnailGenerator
+    private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "pro_video_editor")
@@ -66,13 +68,24 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
                     return
                 }
 
-                val thumbnails = thumbnailGenerator.generateThumbnails(
-                    videoBytes,
-                    timestamps,
-                    thumbnailFormat,
-                    imageWidth
-                )
-                result.success(thumbnails)
+                coroutineScope.launch {
+                    try {
+                        val thumbnails = thumbnailGenerator.generateThumbnails(
+                            videoBytes = videoBytes,
+                            timestamps = timestamps,
+                            format = thumbnailFormat,
+                            width = imageWidth
+                        )
+
+                        withContext(Dispatchers.Main) {
+                            result.success(thumbnails)
+                        }
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            result.error("THUMBNAIL_ERROR", e.message, null)
+                        }
+                    }
+                }
             }
 
             else -> {
@@ -83,5 +96,6 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
+        coroutineScope.cancel()
     }
 }
