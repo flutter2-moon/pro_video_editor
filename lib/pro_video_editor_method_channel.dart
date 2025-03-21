@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:pro_video_editor/shared/utils/parser/double_parser.dart';
-import 'package:pro_video_editor/shared/utils/parser/int_parser.dart';
+import '/shared/utils/parser/double_parser.dart';
+import '/shared/utils/parser/int_parser.dart';
+import 'package:mime/mime.dart';
 
 import '/core/models/video/editor_video_model.dart';
 import 'core/models/thumbnail/create_video_thumbnail_model.dart';
@@ -26,10 +27,13 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
     var sp = Stopwatch()..start();
     var videoBytes = await value.safeByteArray();
 
-    final response = await methodChannel.invokeMethod<Map<dynamic, dynamic>>(
-          'getVideoInformation',
-          videoBytes,
-        ) ??
+    var extension = _getFileExtension(videoBytes);
+
+    final response = await methodChannel
+            .invokeMethod<Map<dynamic, dynamic>>('getVideoInformation', {
+          'videoBytes': videoBytes,
+          'extension': extension,
+        }) ??
         {};
 
     print('Read time ${sp.elapsedMilliseconds}ms');
@@ -37,7 +41,7 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
 
     return VideoInformation(
       duration: Duration(milliseconds: safeParseInt(response['duration'])),
-      format: response['format'],
+      extension: extension,
       fileSize: response['fileSize'] ?? 0,
       resolution: Size(
         safeParseDouble(response['width']),
@@ -59,6 +63,7 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
         'timestamps': value.timestamps.map((el) => el.inMilliseconds).toList(),
         'imageWidth': value.imageWidth,
         'thumbnailFormat': value.format.name,
+        'extension': _getFileExtension(videoBytes),
       },
     );
     final List<Uint8List> thumbnails = response?.cast<Uint8List>() ?? [];
@@ -66,5 +71,13 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
     print('Read time ${sp.elapsedMilliseconds}ms');
     print(thumbnails.length);
     return thumbnails;
+  }
+
+  String _getFileExtension(Uint8List videoBytes) {
+    var mimeType = lookupMimeType('', headerBytes: videoBytes);
+    var mimeSp = mimeType?.split('/') ?? [];
+    var extension = mimeSp.length == 2 ? mimeSp[1] : 'mp4';
+
+    return extension;
   }
 }

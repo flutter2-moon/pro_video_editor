@@ -1,4 +1,4 @@
-package ch.waio.pro_video_editor.video
+package ch.waio.pro_video_editor.src
 
 import android.content.Context
 import android.media.MediaMetadataRetriever
@@ -6,12 +6,11 @@ import android.os.Environment
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import ch.waio.pro_video_editor.video.mimeToExtension
 
 class VideoProcessor(private val context: Context) {
 
-    fun processVideo(videoData: ByteArray): Map<String, Any> {
-        val tempFile = createTempFile(videoData, "tmp")
+    fun processVideo(videoData: ByteArray, extension: String): Map<String, Any> {
+        val tempFile = createTempFile(videoData, extension)
             ?: return mapOf("error" to "Failed to create temp file")
 
         val fileSize = tempFile.length()
@@ -50,7 +49,6 @@ class VideoProcessor(private val context: Context) {
         return mapOf(
             "fileSize" to fileSize,
             "duration" to durationMs,
-            "format" to mimeType.substringAfter("/"),
             "width" to width,
             "height" to height
         )

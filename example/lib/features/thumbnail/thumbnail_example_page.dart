@@ -70,7 +70,7 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
             Column(
               children: [
                 Text('FileSize: ${_informations!.fileSize}'),
-                Text('Format: ${_informations!.format}'),
+                Text('Format: ${_informations!.extension}'),
                 Text('Resolution: ${_informations!.resolution}'),
                 Text('Duration: ${_informations!.duration.inMilliseconds}ms'),
               ],

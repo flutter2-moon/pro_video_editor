@@ -5,8 +5,8 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import ch.waio.pro_video_editor.video.VideoProcessor
-import ch.waio.pro_video_editor.video.ThumbnailGenerator
+import ch.waio.pro_video_editor.src.VideoProcessor
+import ch.waio.pro_video_editor.src.ThumbnailGenerator
 import kotlinx.coroutines.*
 
 /** ProVideoEditorPlugin */
@@ -30,21 +30,11 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
             }
 
             "getVideoInformation" -> {
-                val videoData = when (val arg = call.arguments) {
-                    is ByteArray -> arg
-                    is List<*> -> arg.mapNotNull {
-                        when (it) {
-                            is Int -> it.toByte()
-                            is Byte -> it
-                            else -> null
-                        }
-                    }.toByteArray()
+                val videoBytes = call.argument<ByteArray>("videoBytes")
+                val extension = call.argument<String>("extension")
 
-                    else -> null
-                }
-
-                if (videoData != null) {
-                    val info = videoProcessor.processVideo(videoData)
+                if (videoBytes != null && extension != null) {
+                    val info = videoProcessor.processVideo(videoBytes, extension)
                     result.success(info)
                 } else {
                     result.error(
@@ -60,10 +50,11 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
                 val rawTimestamps = call.argument<List<Number>>("timestamps")
                 val thumbnailFormat = call.argument<String>("thumbnailFormat")
                 val imageWidth = call.argument<Number>("imageWidth")?.toInt()
+                val extension = call.argument<String>("extension")
 
                 val timestamps = rawTimestamps?.map { it.toLong() }
 
-                if (videoBytes == null || timestamps == null || thumbnailFormat == null || imageWidth == null) {
+                if (videoBytes == null || timestamps == null || thumbnailFormat == null || imageWidth == null || extension == null) {
                     result.error("INVALID_ARGUMENTS", "Missing or invalid arguments", null)
                     return
                 }
@@ -73,7 +64,8 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
                         val thumbnails = thumbnailGenerator.generateThumbnails(
                             videoBytes = videoBytes,
                             timestamps = timestamps,
-                            format = thumbnailFormat,
+                            extension = extension,
+                            thumbnailFormat = thumbnailFormat,
                             width = imageWidth
                         )
 

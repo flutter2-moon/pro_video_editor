@@ -5,12 +5,12 @@ class VideoInformation {
   /// Creates a [VideoInformation] instance.
   ///
   /// - [duration]: The total playback time of the video.
-  /// - [format]: The file format of the video (e.g., "mp4", "avi").
+  /// - [extension]: The file format of the video (e.g., "mp4", "avi").
   /// - [fileSize]: The size of the video file in bytes.
   /// - [resolution]: The width and height of the video in pixels.
   VideoInformation({
     required this.duration,
-    required this.format,
+    required this.extension,
     required this.fileSize,
     required this.resolution,
   });
@@ -35,5 +35,5 @@ class VideoInformation {
   final Duration duration;
 
   /// The format of the video file, such as "mp4" or "avi".
-  final String format;
+  final String extension;
 }

@@ -22,7 +22,7 @@ class WebManager {
 
     return VideoInformation(
       duration: Duration(milliseconds: safeParseInt(result['duration'])),
-      format: result['format'] ?? 'unknown',
+      extension: result['format'] ?? 'unknown',
       fileSize: safeParseInt(result['fileSize']),
       resolution: Size(
         safeParseDouble(result['width']),
