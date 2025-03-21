@@ -89,11 +89,11 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
+            VALUE "CompanyName", "ch.waio" "\0"
             VALUE "FileDescription", "pro_video_editor_example" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "pro_video_editor_example" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2025 com.example. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2025 ch.waio. All rights reserved." "\0"
             VALUE "OriginalFilename", "pro_video_editor_example.exe" "\0"
             VALUE "ProductName", "pro_video_editor_example" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"

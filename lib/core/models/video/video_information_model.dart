@@ -1,14 +1,14 @@
 import 'dart:ui';
 
 /// A class that holds metadata information about a video.
-class VideoInformations {
-  /// Creates a [VideoInformations] instance.
+class VideoInformation {
+  /// Creates a [VideoInformation] instance.
   ///
   /// - [duration]: The total playback time of the video.
   /// - [format]: The file format of the video (e.g., "mp4", "avi").
   /// - [fileSize]: The size of the video file in bytes.
   /// - [resolution]: The width and height of the video in pixels.
-  VideoInformations({
+  VideoInformation({
     required this.duration,
     required this.format,
     required this.fileSize,

@@ -49,6 +49,7 @@ target_include_directories(${PLUGIN_NAME} INTERFACE
 target_link_libraries(${PLUGIN_NAME} PRIVATE 
   flutter 
   flutter_wrapper_plugin 
+  Windowscodecs
   mfplat.lib
   mfreadwrite.lib
   mfuuid.lib

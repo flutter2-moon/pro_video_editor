@@ -1,4 +1,4 @@
-group = "com.example.pro_video_editor"
+group = "ch.waio.pro_video_editor"
 version = "1.0-SNAPSHOT"
 
 buildscript {
@@ -25,7 +25,7 @@ apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
 
 android {
-    namespace = "com.example.pro_video_editor"
+    namespace = "ch.waio.pro_video_editor"
 
     compileSdk = 35
 

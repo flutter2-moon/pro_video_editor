@@ -4,8 +4,8 @@ import 'package:pro_video_editor/shared/utils/parser/double_parser.dart';
 import 'package:pro_video_editor/shared/utils/parser/int_parser.dart';
 
 import '/core/models/video/editor_video_model.dart';
-import '/core/models/video/video_informations_model.dart';
 import 'core/models/thumbnail/create_video_thumbnail_model.dart';
+import 'core/models/video/video_information_model.dart';
 import 'pro_video_editor_platform_interface.dart';
 
 /// An implementation of [ProVideoEditorPlatform] that uses method channels.
@@ -22,12 +22,12 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
   }
 
   @override
-  Future<VideoInformations> getVideoInformations(EditorVideo value) async {
+  Future<VideoInformation> getVideoInformation(EditorVideo value) async {
     var sp = Stopwatch()..start();
     var videoBytes = await value.safeByteArray();
 
     final response = await methodChannel.invokeMethod<Map<dynamic, dynamic>>(
-          'getVideoInformations',
+          'getVideoInformation',
           videoBytes,
         ) ??
         {};
@@ -35,7 +35,7 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
     print('Read time ${sp.elapsedMilliseconds}ms');
     print(response);
 
-    return VideoInformations(
+    return VideoInformation(
       duration: Duration(milliseconds: safeParseInt(response['duration'])),
       format: response['format'],
       fileSize: response['fileSize'] ?? 0,
@@ -52,17 +52,19 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
     var sp = Stopwatch()..start();
     var videoBytes = await value.video.safeByteArray();
 
-    final response = await methodChannel.invokeMethod<List<Uint8List>>(
+    final response = await methodChannel.invokeMethod<List<dynamic>>(
       'createVideoThumbnails',
       {
         'videoBytes': videoBytes,
         'timestamps': value.timestamps.map((el) => el.inMilliseconds).toList(),
         'imageWidth': value.imageWidth,
+        'thumbnailFormat': value.thumbnailFormat.name,
       },
     );
+    final List<Uint8List> thumbnails = response?.cast<Uint8List>() ?? [];
 
     print('Read time ${sp.elapsedMilliseconds}ms');
-    print(response);
-    return [];
+    print(thumbnails.length);
+    return thumbnails;
   }
 }

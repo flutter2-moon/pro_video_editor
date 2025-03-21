@@ -35,7 +35,7 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.example.pro_video_editor
+        package: ch.waio.pro_video_editor
         pluginClass: ProVideoEditorPlugin
       ios:
         pluginClass: ProVideoEditorPlugin

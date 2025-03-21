@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:pro_video_editor/core/models/video/editor_video_model.dart';
-import 'package:pro_video_editor/core/models/video/video_informations_model.dart';
+import 'package:pro_video_editor/core/models/video/video_information_model.dart';
 
 import '/core/models/thumbnail/create_video_thumbnail_model.dart';
 import 'pro_video_editor_method_channel.dart';
@@ -32,9 +32,8 @@ abstract class ProVideoEditorPlatform extends PlatformInterface {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
 
-  Future<VideoInformations> getVideoInformations(EditorVideo value) {
-    throw UnimplementedError(
-        'getVideoInformations() has not been implemented.');
+  Future<VideoInformation> getVideoInformation(EditorVideo value) {
+    throw UnimplementedError('getVideoInformation() has not been implemented.');
   }
 
   Future<List<Uint8List>> createVideoThumbnails(CreateVideoThumbnail value) {

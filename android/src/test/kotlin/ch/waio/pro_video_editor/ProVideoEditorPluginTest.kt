@@ -1,4 +1,4 @@
-package com.example.pro_video_editor
+package ch.waio.pro_video_editor
 
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
