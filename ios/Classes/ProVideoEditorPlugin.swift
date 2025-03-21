@@ -30,7 +30,7 @@ public class ProVideoEditorPlugin: NSObject, FlutterPlugin {
             let rawTimestamps = args["timestamps"] as? [Double],
             let format = args["thumbnailFormat"] as? String,
             let ext = args["extension"] as? String,
-            let width = args["imageWidth"] as? Int else {
+            let width = args["imageWidth"] as? NSNumber else {
         result(FlutterError(code: "INVALID_ARGUMENTS", message: "Missing or invalid arguments", details: nil))
         return
       }

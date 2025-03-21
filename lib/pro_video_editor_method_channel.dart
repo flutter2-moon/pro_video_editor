@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import '/shared/utils/parser/double_parser.dart';
-import '/shared/utils/parser/int_parser.dart';
 import 'package:mime/mime.dart';
 
 import '/core/models/video/editor_video_model.dart';
+import '/shared/utils/parser/double_parser.dart';
+import '/shared/utils/parser/int_parser.dart';
 import 'core/models/thumbnail/create_video_thumbnail_model.dart';
 import 'core/models/video/video_information_model.dart';
 import 'pro_video_editor_platform_interface.dart';

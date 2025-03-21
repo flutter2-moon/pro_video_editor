@@ -8,7 +8,7 @@ class ThumbnailGenerator {
         timestamps: [Double],
         thumbnailFormat: String,
         extension ext: String,
-        width: Int,
+        width: NSNumber,
         completion: @escaping ([Data]) -> Void
     ) {
         DispatchQueue.global(qos: .userInitiated).async {

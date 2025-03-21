@@ -1,0 +1,29 @@
+PODS:
+  - ffmpeg-kit-macos-min (6.0)
+  - FlutterMacOS (1.0.0)
+  - pro_video_editor (0.0.1):
+    - ffmpeg-kit-macos-min
+    - FlutterMacOS
+
+DEPENDENCIES:
+  - FlutterMacOS (from `Flutter/ephemeral`)
+  - pro_video_editor (from `Flutter/ephemeral/.symlinks/plugins/pro_video_editor/macos`)
+
+SPEC REPOS:
+  trunk:
+    - ffmpeg-kit-macos-min
+
+EXTERNAL SOURCES:
+  FlutterMacOS:
+    :path: Flutter/ephemeral
+  pro_video_editor:
+    :path: Flutter/ephemeral/.symlinks/plugins/pro_video_editor/macos
+
+SPEC CHECKSUMS:
+  ffmpeg-kit-macos-min: 5b66bde06d772cb0cb2823003d2f40955f9752d7
+  FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
+  pro_video_editor: a7cdc205b3dbefc5ed7f28670849181e05919597
+
+PODFILE CHECKSUM: 54d867c82ac51cbd61b565781b9fada492027009
+
+COCOAPODS: 1.16.2
