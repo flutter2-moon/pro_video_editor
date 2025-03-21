@@ -20,6 +20,10 @@ set(PLUGIN_NAME "pro_video_editor_plugin")
 list(APPEND PLUGIN_SOURCES
   "pro_video_editor_plugin.cpp"
   "pro_video_editor_plugin.h"
+  "src/video_processor.cpp"
+  "src/video_processor.h"
+  "src/thumbnail_generator.cpp"
+  "src/thumbnail_generator.h"
 )
 
 # Define the plugin library target. Its name must not be changed (see comment

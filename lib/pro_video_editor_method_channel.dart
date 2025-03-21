@@ -37,7 +37,6 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
         {};
 
     print('Read time ${sp.elapsedMilliseconds}ms');
-    print(response);
 
     return VideoInformation(
       duration: Duration(milliseconds: safeParseInt(response['duration'])),
