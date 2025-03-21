@@ -78,13 +78,13 @@ class _HomePageState extends State<HomePage> {
       body: ListView(
         children: [
           ListTile(
-            leading: Icon(Icons.image_outlined),
-            title: Text('Thumbnail generation'),
-            trailing: Icon(Icons.chevron_right),
+            leading: const Icon(Icons.image_outlined),
+            title: const Text('Thumbnail generation'),
+            trailing: const Icon(Icons.chevron_right),
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => ThumbnailExamplePage()),
+                MaterialPageRoute(builder: (_) => const ThumbnailExamplePage()),
               );
             },
           ),

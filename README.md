@@ -5,11 +5,11 @@
 
 ### Platform Support
 
-| Platform       | `getVideoInformations`  | `createVideoThumbnails`   | `generateVideoFromWidget` |
+| Platform       | `getVideoInformation`  | `createVideoThumbnails`   | `generateVideoFromWidget` |
 |----------------|-------------------------|---------------------------|---------------------------|
 | Android        | ✅                      | ✅                       | ❌                        |
 | iOS            | ❌                      | ❌                       | ❌                        |
-| Web            | ❌                      | ❌                       | ❌                        |
+| Web            | ✅                      | ✅                       | ❌                        |
 | macOS          | ❌                      | ❌                       | ❌                        |
 | Windows        | ✅                      | ❌                       | ❌                        |
 | Linux          | ❌                      | ❌                       | ❌                        |

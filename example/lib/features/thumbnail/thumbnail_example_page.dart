@@ -65,6 +65,7 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
               child: const Text('Log video informations'),
             ),
           ),
+          const SizedBox(height: 16),
           if (_informations != null)
             Column(
               children: [
@@ -81,6 +82,7 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
               child: const Text('Generate Thumbnails'),
             ),
           ),
+          const SizedBox(height: 16),
           Wrap(
             alignment: WrapAlignment.center,
             runAlignment: WrapAlignment.center,

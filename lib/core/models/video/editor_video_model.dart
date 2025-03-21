@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:flutter/widgets.dart';
 
 import '/core/platform/io/io_helper.dart';
 import '/shared/utils/converters.dart';

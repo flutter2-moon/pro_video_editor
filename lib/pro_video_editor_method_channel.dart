@@ -58,7 +58,7 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
         'videoBytes': videoBytes,
         'timestamps': value.timestamps.map((el) => el.inMilliseconds).toList(),
         'imageWidth': value.imageWidth,
-        'thumbnailFormat': value.thumbnailFormat.name,
+        'thumbnailFormat': value.format.name,
       },
     );
     final List<Uint8List> thumbnails = response?.cast<Uint8List>() ?? [];
