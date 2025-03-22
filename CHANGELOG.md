@@ -1,3 +1,6 @@
+## 0.0.2
+- **FEAT**: Add `getVideoInformation` and `createVideoThumbnails` for all platforms.
+
 ## 0.0.1
 
-* TODO: Describe initial release.
+- **CHORE**: Initial release.

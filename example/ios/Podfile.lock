@@ -1,0 +1,35 @@
+PODS:
+  - ffmpeg-kit-ios-min (6.0)
+  - Flutter (1.0.0)
+  - integration_test (0.0.1):
+    - Flutter
+  - pro_video_editor (0.0.1):
+    - ffmpeg-kit-ios-min
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
+  - pro_video_editor (from `.symlinks/plugins/pro_video_editor/ios`)
+
+SPEC REPOS:
+  trunk:
+    - ffmpeg-kit-ios-min
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
+  pro_video_editor:
+    :path: ".symlinks/plugins/pro_video_editor/ios"
+
+SPEC CHECKSUMS:
+  ffmpeg-kit-ios-min: 29195b571253df57ab6c4bf002a4d648efa1166a
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
+  pro_video_editor: e5dc2faae944dd56e53cf6fefd31481d704e8e68
+
+PODFILE CHECKSUM: 06e2d1868f6fe3068c5e2d902bc3a01001025d74
+
+COCOAPODS: 1.16.2

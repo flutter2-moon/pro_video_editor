@@ -14,6 +14,8 @@ set(PLUGIN_NAME "pro_video_editor_plugin")
 # Any new source files that you add to the plugin should be added here.
 list(APPEND PLUGIN_SOURCES
   "pro_video_editor_plugin.cc"
+  "src/video_processor.cpp"
+  "src/thumbnail_generator.cpp"
 )
 
 # Define the plugin library target. Its name must not be changed (see comment
@@ -34,12 +36,21 @@ set_target_properties(${PLUGIN_NAME} PROPERTIES
   CXX_VISIBILITY_PRESET hidden)
 target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
 
+# === FFmpeg Dependencies ===
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(AVFORMAT REQUIRED IMPORTED_TARGET libavformat)
+pkg_check_modules(AVCODEC REQUIRED IMPORTED_TARGET libavcodec)
+pkg_check_modules(AVUTIL REQUIRED IMPORTED_TARGET libavutil)
+
 # Source include directories and library dependencies. Add any plugin-specific
 # dependencies here.
 target_include_directories(${PLUGIN_NAME} INTERFACE
   "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_link_libraries(${PLUGIN_NAME} PRIVATE flutter)
 target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK)
+target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::AVFORMAT)
+target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::AVCODEC)
+target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::AVUTIL)
 
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an

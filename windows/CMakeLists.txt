@@ -20,6 +20,10 @@ set(PLUGIN_NAME "pro_video_editor_plugin")
 list(APPEND PLUGIN_SOURCES
   "pro_video_editor_plugin.cpp"
   "pro_video_editor_plugin.h"
+  "src/video_processor.cpp"
+  "src/video_processor.h"
+  "src/thumbnail_generator.cpp"
+  "src/thumbnail_generator.h"
 )
 
 # Define the plugin library target. Its name must not be changed (see comment
@@ -46,7 +50,14 @@ target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
 # dependencies here.
 target_include_directories(${PLUGIN_NAME} INTERFACE
   "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_link_libraries(${PLUGIN_NAME} PRIVATE flutter flutter_wrapper_plugin)
+target_link_libraries(${PLUGIN_NAME} PRIVATE 
+  flutter 
+  flutter_wrapper_plugin 
+  Windowscodecs
+  mfplat.lib
+  mfreadwrite.lib
+  mfuuid.lib
+  shlwapi.lib)
 
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an
@@ -54,6 +65,13 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE flutter flutter_wrapper_plugin)
 set(pro_video_editor_bundled_libraries
   ""
   PARENT_SCOPE
+)
+
+
+add_custom_command(TARGET ${PLUGIN_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_CURRENT_SOURCE_DIR}/bin/ffmpeg.exe"
+    "${CMAKE_BINARY_DIR}/plugins/${PLUGIN_NAME}/ffmpeg.exe"
 )
 
 # === Tests ===

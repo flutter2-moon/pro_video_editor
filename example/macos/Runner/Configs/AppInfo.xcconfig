@@ -8,7 +8,7 @@
 PRODUCT_NAME = pro_video_editor_example
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.proVideoEditorExample
+PRODUCT_BUNDLE_IDENTIFIER = ch.waio.proVideoEditorExample
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2025 com.example. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2025 ch.waio. All rights reserved.

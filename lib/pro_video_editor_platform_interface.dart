@@ -1,7 +1,14 @@
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'dart:typed_data';
 
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:pro_video_editor/core/models/video/editor_video_model.dart';
+import 'package:pro_video_editor/core/models/video/video_information_model.dart';
+
+import '/core/models/thumbnail/create_video_thumbnail_model.dart';
 import 'pro_video_editor_method_channel.dart';
 
+/// An abstract class that defines the platform interface for the
+/// Pro Video Editor plugin.
 abstract class ProVideoEditorPlatform extends PlatformInterface {
   /// Constructs a ProVideoEditorPlatform.
   ProVideoEditorPlatform() : super(token: _token);
@@ -23,7 +30,25 @@ abstract class ProVideoEditorPlatform extends PlatformInterface {
     _instance = instance;
   }
 
+  /// Retrieves the platform version.
+  ///
+  /// Throws an [UnimplementedError] if not implemented.
   Future<String?> getPlatformVersion() {
     throw UnimplementedError('platformVersion() has not been implemented.');
+  }
+
+  /// Fetches information about a video.
+  ///
+  /// Throws an [UnimplementedError] if not implemented.
+  Future<VideoInformation> getVideoInformation(EditorVideo value) {
+    throw UnimplementedError('getVideoInformation() has not been implemented.');
+  }
+
+  /// Generates thumbnails for a video.
+  ///
+  /// Throws an [UnimplementedError] if not implemented.
+  Future<List<Uint8List>> createVideoThumbnails(CreateVideoThumbnail value) {
+    throw UnimplementedError(
+        'createVideoThumbnails() has not been implemented.');
   }
 }
