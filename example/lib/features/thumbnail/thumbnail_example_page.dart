@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:pro_video_editor/core/models/video/editor_video_model.dart';
-import 'package:pro_video_editor/core/models/video/video_information_model.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
 import 'package:pro_video_editor_example/core/constants/example_constants.dart';
 
+/// A sample page demonstrating video thumbnail generation on the web.
+///
+/// This widget is intended to showcase how to use the
+/// [WebThumbnailGenerator] to extract and display video thumbnails.
 class ThumbnailExamplePage extends StatefulWidget {
+  /// Creates a [ThumbnailExamplePage].
   const ThumbnailExamplePage({super.key});
 
   @override
@@ -14,7 +17,9 @@ class ThumbnailExamplePage extends StatefulWidget {
 class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
   List<MemoryImage> _thumbnails = [];
 
-  final int _exampleImageCount = 7;
+  final int _exampleImageCount = 10;
+  final double _imageSize = 50;
+  final ThumbnailFormat _thumbnailFormat = ThumbnailFormat.jpeg;
   VideoInformation? _informations;
 
   Future<void> _setVideoInformation() async {
@@ -36,13 +41,13 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
     var raw = await VideoUtilsService.instance.createVideoThumbnails(
       CreateVideoThumbnail(
         video: EditorVideo(assetPath: kVideoEditorExampleAssetPath),
+        format: _thumbnailFormat,
         timestamps: List.generate(_exampleImageCount, (i) {
           return Duration(
             milliseconds: ((step * i) + 1).toInt(),
           );
         }),
-        imageWidth: MediaQuery.sizeOf(context).width /
-            _exampleImageCount *
+        imageWidth: _imageSize *
             MediaQuery.devicePixelRatioOf(context) *
             info.resolution.aspectRatio,
       ),
@@ -90,16 +95,13 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
             children: _thumbnails
                 .map(
                   (item) => Container(
-                    width: 50,
-                    height: 50,
+                    width: _imageSize,
+                    height: _imageSize,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(7),
                     ),
-                    child: Image(
-                      image: item,
-                      fit: BoxFit.cover,
-                    ),
+                    child: Image(image: item, fit: BoxFit.cover),
                   ),
                 )
                 .toList(),

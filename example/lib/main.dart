@@ -10,14 +10,14 @@ void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
+/// The root widget of the application.
+///
+/// This widget sets up the app's state and initial configuration.
+/// It is typically used to initialize themes, routes, and global settings.
+class MyApp extends StatelessWidget {
+  /// Creates the root [MyApp] widget.
   const MyApp({super.key});
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -33,7 +33,12 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
+/// The main landing page of the application.
+///
+/// This widget serves as the entry point after launching the app,
+/// typically containing the primary UI or navigation structure.
 class HomePage extends StatefulWidget {
+  /// Creates the [HomePage] widget.
   const HomePage({super.key});
 
   @override

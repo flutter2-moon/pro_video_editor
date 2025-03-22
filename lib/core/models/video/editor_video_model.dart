@@ -1,10 +1,14 @@
 import 'dart:typed_data';
 
-
 import '/core/platform/io/io_helper.dart';
 import '/shared/utils/converters.dart';
 import '/shared/utils/file_constructor_utils.dart';
 
+/// A model that encapsulates various ways to load and represent a video.
+///
+/// This class supports videos from in-memory bytes, file system, network,
+/// or asset bundle. It provides convenience methods for identifying the
+/// source type and safely retrieving video bytes.
 class EditorVideo {
   /// Creates an instance of the `EditorVideo` class with the specified
   /// properties.
@@ -73,6 +77,10 @@ class EditorVideo {
     return bytes;
   }
 
+  /// Returns the type of the video source.
+  ///
+  /// This is determined by the first non-null source in the order:
+  /// memory, file, network, asset.
   EditorVideoType get type {
     if (hasBytes) {
       return EditorVideoType.memory;
@@ -122,6 +130,7 @@ class EditorVideo {
   }
 }
 
+/// Enum representing the type of source the video was loaded from.
 enum EditorVideoType {
   /// Represents a video loaded from a file.
   file,

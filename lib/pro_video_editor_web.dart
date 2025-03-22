@@ -15,13 +15,15 @@ import 'core/models/video/editor_video_model.dart';
 import 'core/models/video/video_information_model.dart';
 import 'pro_video_editor_platform_interface.dart';
 
-/// A web implementation of the ProVideoEditorPlatform of the ProVideoEditor plugin.
+/// A web implementation of the ProVideoEditorPlatform of the ProVideoEditor
+/// plugin.
 class ProVideoEditorWeb extends ProVideoEditorPlatform {
   /// Constructs a ProVideoEditorWeb
   ProVideoEditorWeb();
 
   final WebManager _manager = WebManager();
 
+  /// Registers the web implementation of the ProVideoEditor platform interface.
   static void registerWith(Registrar registrar) {
     ProVideoEditorPlatform.instance = ProVideoEditorWeb();
   }

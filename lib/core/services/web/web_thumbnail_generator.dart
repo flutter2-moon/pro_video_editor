@@ -8,7 +8,18 @@ import 'package:web/web.dart' as web;
 
 import '../../utils/web_blob_utils.dart';
 
+/// A utility class to generate video thumbnails in web environments.
+///
+/// Uses browser APIs to capture frames from a video file and return them
+/// as image thumbnails.
 class WebThumbnailGenerator {
+  /// Generates thumbnails from a video using the given [value] parameters.
+  ///
+  /// The [value] should contain the video data and any configuration
+  /// needed for extracting thumbnails, such as timestamps or frame count.
+  ///
+  /// Returns a [Future] that completes with a list of [Uint8List]
+  /// objects, each representing an image thumbnail in bytes.
   Future<List<Uint8List>> generateThumbnails(CreateVideoThumbnail value) async {
     var videoBytes = await value.video.safeByteArray();
     var width = value.imageWidth.toInt();

@@ -1,5 +1,11 @@
+import 'dart:typed_data';
+import 'dart:ui';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:pro_video_editor/core/models/thumbnail/create_video_thumbnail_model.dart';
+import 'package:pro_video_editor/core/models/video/editor_video_model.dart';
+import 'package:pro_video_editor/core/models/video/video_information_model.dart';
 import 'package:pro_video_editor/pro_video_editor_method_channel.dart';
 import 'package:pro_video_editor/pro_video_editor_platform_interface.dart';
 
@@ -8,6 +14,21 @@ class MockProVideoEditorPlatform
     implements ProVideoEditorPlatform {
   @override
   Future<String?> getPlatformVersion() => Future.value('42');
+
+  @override
+  Future<List<Uint8List>> createVideoThumbnails(CreateVideoThumbnail value) {
+    return Future.value([]);
+  }
+
+  @override
+  Future<VideoInformation> getVideoInformation(EditorVideo value) {
+    return Future.value(VideoInformation(
+      duration: Duration.zero,
+      extension: 'mp4',
+      fileSize: 1,
+      resolution: Size.zero,
+    ));
+  }
 }
 
 void main() {

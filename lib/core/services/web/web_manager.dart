@@ -1,24 +1,28 @@
 import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:pro_video_editor/core/services/web/web_thumbnail_generator.dart';
-
 import '/core/models/thumbnail/create_video_thumbnail_model.dart';
 import '/core/models/video/editor_video_model.dart';
 import '/core/models/video/video_information_model.dart';
+import '/core/services/web/web_thumbnail_generator.dart';
 import '/shared/utils/parser/double_parser.dart';
 import '/shared/utils/parser/int_parser.dart';
 import 'web_video_info_reader.dart';
 
+/// A platform-specific implementation for handling video operations on web.
+///
+/// This class provides methods to extract metadata and generate thumbnails
+/// using browser capabilities.
 class WebManager {
+  /// Retrieves metadata from the provided [EditorVideo] on the web.
+  ///
+  /// Loads the video using an HTML video element and extracts duration,
+  /// resolution, file size, and format.
+  ///
+  /// Returns a [VideoInformation] object.
   Future<VideoInformation> getVideoInformation(EditorVideo value) async {
-    var sp = Stopwatch()..start();
-
     var result =
         await WebVideoInfoReader().processVideoWeb(await value.safeByteArray());
-
-    print('Read time ${sp.elapsedMilliseconds}ms');
-    print(result);
 
     return VideoInformation(
       duration: Duration(milliseconds: safeParseInt(result['duration'])),
@@ -31,16 +35,13 @@ class WebManager {
     );
   }
 
+  /// Generates thumbnails from a video using web-based processing.
+  ///
+  /// Accepts a [CreateVideoThumbnail] configuration and returns a list
+  /// of [Uint8List] image bytes representing the generated thumbnails.
   Future<List<Uint8List>> createVideoThumbnails(
     CreateVideoThumbnail value,
   ) async {
-    var sp = Stopwatch()..start();
-
-    var thumbnails = await WebThumbnailGenerator().generateThumbnails(value);
-
-    print('Read time ${sp.elapsedMilliseconds}ms');
-    print(thumbnails.length);
-
-    return thumbnails;
+    return await WebThumbnailGenerator().generateThumbnails(value);
   }
 }

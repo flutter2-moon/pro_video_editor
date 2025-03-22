@@ -24,7 +24,6 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
 
   @override
   Future<VideoInformation> getVideoInformation(EditorVideo value) async {
-    var sp = Stopwatch()..start();
     var videoBytes = await value.safeByteArray();
 
     var extension = _getFileExtension(videoBytes);
@@ -35,8 +34,6 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
           'extension': extension,
         }) ??
         {};
-
-    print('Read time ${sp.elapsedMilliseconds}ms');
 
     return VideoInformation(
       duration: Duration(milliseconds: safeParseInt(response['duration'])),
@@ -52,7 +49,6 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
   @override
   Future<List<Uint8List>> createVideoThumbnails(
       CreateVideoThumbnail value) async {
-    var sp = Stopwatch()..start();
     var videoBytes = await value.video.safeByteArray();
 
     final response = await methodChannel.invokeMethod<List<dynamic>>(
@@ -67,7 +63,6 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
     );
     final List<Uint8List> thumbnails = response?.cast<Uint8List>() ?? [];
 
-    print('Read time ${sp.elapsedMilliseconds}ms');
     return thumbnails;
   }
 
