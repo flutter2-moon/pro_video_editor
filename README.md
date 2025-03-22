@@ -12,4 +12,10 @@
 | Web            | ✅                      | ✅                       | ❌                        |
 | macOS          | ✅                      | ✅                       | ❌                        |
 | Windows        | ✅                      | ✅                       | ❌                        |
-| Linux          | ❌                      | ❌                       | ❌                        |
+| Linux          | ⚠️                      | ⚠️                       | ❌                        |
+
+
+#### Legend
+- ✅ Supported and tested  
+- ⚠️ Supported but not tested
+- ❌ Not supported but planned
