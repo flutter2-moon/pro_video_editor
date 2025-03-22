@@ -67,6 +67,13 @@ set(pro_video_editor_bundled_libraries
   PARENT_SCOPE
 )
 
+
+add_custom_command(TARGET ${PLUGIN_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_CURRENT_SOURCE_DIR}/bin/ffmpeg.exe"
+    "${CMAKE_BINARY_DIR}/plugins/${PLUGIN_NAME}/ffmpeg.exe"
+)
+
 # === Tests ===
 # These unit tests can be run from a terminal after building the example, or
 # from Visual Studio after opening the generated solution file.

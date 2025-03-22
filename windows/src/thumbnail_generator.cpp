@@ -1,205 +1,178 @@
 #include "thumbnail_generator.h"
 
-#include <windows.h>
-#include <mfapi.h>
-#include <mfidl.h>
-#include <mfreadwrite.h>
-#include <propvarutil.h>
-#include <wincodec.h>
-#include <shlwapi.h>
-#include <combaseapi.h>
 #include <flutter/standard_method_codec.h>
+#include <windows.h>
+#include <fstream>
 #include <string>
 #include <vector>
-#include <algorithm>
+#include <sstream>
+#include <iostream>
+#include <chrono>
+#include <filesystem>
+#include <shellapi.h>
+#include <future>
 
-#pragma comment(lib, "mfplat.lib")
-#pragma comment(lib, "mfreadwrite.lib")
-#pragma comment(lib, "mfuuid.lib")
-#pragma comment(lib, "shlwapi.lib")
+namespace fs = std::filesystem;
 
 namespace pro_video_editor {
 
-void HandleGenerateThumbnails(
-    const flutter::EncodableMap& args,
-    std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
+	std::wstring GenerateTempFilename(const std::wstring& prefix, const std::wstring& extension) {
+		wchar_t tempPath[MAX_PATH];
+		GetTempPathW(MAX_PATH, tempPath);
 
-  // Extract videoBytes
-  auto itVideo = args.find(flutter::EncodableValue("videoBytes"));
-  if (itVideo == args.end()) {
-    result->Error("InvalidArgument", "Missing videoBytes");
-    return;
-  }
-  const auto* videoBytes = std::get_if<std::vector<uint8_t>>(&itVideo->second);
-  if (!videoBytes) {
-    result->Error("InvalidArgument", "Invalid videoBytes format");
-    return;
-  }
+		SYSTEMTIME time;
+		GetSystemTime(&time);
 
-  // Extract timestamps
-  auto itTimestamps = args.find(flutter::EncodableValue("timestamps"));
-  if (itTimestamps == args.end()) {
-    result->Error("InvalidArgument", "Missing timestamps");
-    return;
-  }
-  const auto* timestampsList = std::get_if<flutter::EncodableList>(&itTimestamps->second);
-  if (!timestampsList) {
-    result->Error("InvalidArgument", "Invalid timestamps format");
-    return;
-  }
+		wchar_t filename[MAX_PATH];
+		swprintf_s(filename, MAX_PATH, L"%s_%04d%02d%02d%02d%02d%02d%03d%s",
+			prefix.c_str(),
+			time.wYear, time.wMonth, time.wDay,
+			time.wHour, time.wMinute, time.wSecond, time.wMilliseconds,
+			extension.c_str());
 
-  std::vector<int64_t> timestamps;
-  for (const auto& ts : *timestampsList) {
-    if (const auto* timestamp = std::get_if<int>(&ts)) {
-      timestamps.push_back(static_cast<int64_t>(*timestamp));
-    } else {
-      result->Error("InvalidArgument", "Timestamps must be integers");
-      return;
-    }
-  }
+		return std::wstring(tempPath) + filename;
+	}
 
-  // Extract imageWidth
-  auto itWidth = args.find(flutter::EncodableValue("imageWidth"));
-  if (itWidth == args.end()) {
-    result->Error("InvalidArgument", "Missing imageWidth");
-    return;
-  }
-  const auto* imageWidth = std::get_if<double>(&itWidth->second);
-  if (!imageWidth) {
-    result->Error("InvalidArgument", "Invalid imageWidth format");
-    return;
-  }
+	bool WriteBytesToFile(const std::wstring& path, const std::vector<uint8_t>& bytes) {
+		std::ofstream out(path, std::ios::binary);
+		if (!out.is_open()) return false;
+		out.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+		return true;
+	}
 
-  // Create a temporary file
-  wchar_t tempPath[MAX_PATH];
-  GetTempPathW(MAX_PATH, tempPath);
-  wchar_t tempFile[MAX_PATH];
-  GetTempFileNameW(tempPath, L"vid", 0, tempFile);
+	// Helper: get absolute path to ffmpeg.exe located in 'windows/bin/ffmpeg.exe'
+	std::wstring GetFFmpegPath() {
+		wchar_t exePath[MAX_PATH];
+		GetModuleFileNameW(nullptr, exePath, MAX_PATH);
 
-  HANDLE hFile = CreateFileW(tempFile, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
-  if (hFile == INVALID_HANDLE_VALUE) {
-    result->Error("FileError", "Failed to create temp file");
-    return;
-  }
+		// exePath = .../x64/runner/Debug/runner.exe
+		std::filesystem::path exeDir = std::filesystem::path(exePath).parent_path(); // → Debug/
+		std::filesystem::path x64Dir = exeDir.parent_path().parent_path();           // → x64/
 
-  DWORD bytesWritten;
-  if (!WriteFile(hFile, videoBytes->data(), static_cast<DWORD>(videoBytes->size()), &bytesWritten, nullptr)) {
-    CloseHandle(hFile);
-    DeleteFileW(tempFile);
-    result->Error("FileError", "Failed to write to temp file");
-    return;
-  }
-  CloseHandle(hFile);
+		// Actual location of ffmpeg.exe (from CMake copy)
+		std::filesystem::path ffmpegPath = x64Dir / "plugins" / "pro_video_editor_plugin" / "ffmpeg.exe";
 
-  HRESULT hr = MFStartup(MF_VERSION);
-  if (FAILED(hr)) {
-    DeleteFileW(tempFile);
-    result->Error("MediaError", "Failed to initialize Media Foundation");
-    return;
-  }
+		OutputDebugStringW((L"[FFmpeg Path] " + ffmpegPath.wstring() + L"\n").c_str());
+		return ffmpegPath.wstring();
+	}
 
-  IMFSourceReader* pSourceReader = nullptr;
-  hr = MFCreateSourceReaderFromURL(tempFile, nullptr, &pSourceReader);
-  if (FAILED(hr) || !pSourceReader) {
-    DeleteFileW(tempFile);
-    result->Error("MediaError", "Failed to create source reader");
-    return;
-  }
+	std::string WStringToUtf8(const std::wstring& wstr) {
+		if (wstr.empty()) return {};
 
-  IMFMediaType* pNativeType = nullptr;
-  hr = pSourceReader->GetNativeMediaType(static_cast<DWORD>(MF_SOURCE_READER_FIRST_VIDEO_STREAM), 0, &pNativeType);
-  if (FAILED(hr)) {
-    pSourceReader->Release();
-    DeleteFileW(tempFile);
-    result->Error("MediaError", "Failed to retrieve native media type");
-    return;
-  }
+		int size_needed = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), (int)wstr.length(),
+			nullptr, 0, nullptr, nullptr);
+		std::string strTo(size_needed, 0);
+		WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), (int)wstr.length(),
+			&strTo[0], size_needed, nullptr, nullptr);
+		return strTo;
+	}
 
-  GUID nativeSubtype;
-  hr = pNativeType->GetGUID(MF_MT_SUBTYPE, &nativeSubtype);
-  pNativeType->Release();
-  if (FAILED(hr)) {
-    pSourceReader->Release();
-    DeleteFileW(tempFile);
-    result->Error("MediaError", "Failed to get native format");
-    return;
-  }
+	void HandleGenerateThumbnails(
+		const flutter::EncodableMap& args,
+		std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
 
-  IMFMediaType* pMediaTypeOut = nullptr;
-  hr = MFCreateMediaType(&pMediaTypeOut);
-  if (FAILED(hr)) {
-    pSourceReader->Release();
-    DeleteFileW(tempFile);
-    result->Error("MediaError", "Failed to create media type");
-    return;
-  }
+		// Extract parameters
+		const auto* videoBytes = std::get_if<std::vector<uint8_t>>(&args.at(flutter::EncodableValue("videoBytes")));
+		const auto* timestampsList = std::get_if<flutter::EncodableList>(&args.at(flutter::EncodableValue("timestamps")));
+		const auto* formatStr = std::get_if<std::string>(&args.at(flutter::EncodableValue("thumbnailFormat")));
+		const auto* extensionStr = std::get_if<std::string>(&args.at(flutter::EncodableValue("extension")));
+		const auto* width = std::get_if<double>(&args.at(flutter::EncodableValue("imageWidth")));
 
-  hr = pMediaTypeOut->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video);
-  hr |= pMediaTypeOut->SetGUID(MF_MT_SUBTYPE, nativeSubtype);
 
-  if (FAILED(hr)) {
-    pMediaTypeOut->Release();
-    pSourceReader->Release();
-    DeleteFileW(tempFile);
-    result->Error("MediaError", "Failed to set media type");
-    return;
-  }
+		if (!videoBytes || !timestampsList || !formatStr || !extensionStr || !width) {
+			result->Error("InvalidArgument", "Missing required parameters");
+			return;
+		}
+		int roundedWidth = static_cast<int>(std::round(*width));
 
-  hr = pSourceReader->SetCurrentMediaType(static_cast<DWORD>(MF_SOURCE_READER_FIRST_VIDEO_STREAM), nullptr, pMediaTypeOut);
-  pMediaTypeOut->Release();
-  if (FAILED(hr)) {
-    pSourceReader->Release();
-    DeleteFileW(tempFile);
-    result->Error("MediaError", "Failed to set media type");
-    return;
-  }
+		std::wstring videoExt(extensionStr->begin(), extensionStr->end());
+		if (videoExt[0] != L'.') videoExt = L"." + videoExt;
+		std::wstring imageExt(formatStr->begin(), formatStr->end());
+		if (imageExt[0] != L'.') imageExt = L"." + imageExt;
 
-  flutter::EncodableList thumbnails;
-  IWICImagingFactory* pWICFactory = nullptr;
-  hr = CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pWICFactory));
-  if (FAILED(hr)) {
-    pSourceReader->Release();
-    DeleteFileW(tempFile);
-    result->Error("MediaError", "Failed to create WIC factory");
-    return;
-  }
+		// Write video to temp file
+		std::wstring tempVideoPath = GenerateTempFilename(L"video_temp", videoExt);
+		if (!WriteBytesToFile(tempVideoPath, *videoBytes)) {
+			result->Error("FileError", "Failed to write temp video file");
+			return;
+		}
 
-  for (int64_t timestamp : timestamps) {
-    PROPVARIANT var;
-    PropVariantInit(&var);
-    var.vt = VT_I8;
-    var.hVal.QuadPart = timestamp * 10000;
-    hr = pSourceReader->SetCurrentPosition(GUID_NULL, var);
-    PropVariantClear(&var);
+		std::wstring ffmpegPath = GetFFmpegPath();
 
-    if (FAILED(hr)) continue;
+		OutputDebugStringW((L"[FFmpeg Path] " + ffmpegPath + L"\n").c_str());
+		if (!fs::exists(ffmpegPath)) {
+			result->Error("FFmpegError", "ffmpeg.exe not found. Make sure it is in windows/bin/.");
+			return;
+		}
 
-    DWORD flags;
-    IMFSample* pSample = nullptr;
-    hr = pSourceReader->ReadSample(static_cast<DWORD>(MF_SOURCE_READER_FIRST_VIDEO_STREAM), 0, nullptr, &flags, nullptr, &pSample);
+		std::vector<std::future<void>> futures;
+		std::vector<flutter::EncodableValue> thumbnails(timestampsList->size()); // pre-sized
 
-    if (SUCCEEDED(hr) && pSample) {
-      IMFMediaBuffer* pBuffer = nullptr;
-      hr = pSample->ConvertToContiguousBuffer(&pBuffer);
-      if (SUCCEEDED(hr)) {
-        BYTE* pData = nullptr;
-        DWORD cbBuffer;
-        hr = pBuffer->Lock(&pData, nullptr, &cbBuffer);
-        if (SUCCEEDED(hr)) {
-          std::vector<uint8_t> jpegData(pData, pData + cbBuffer);
-          thumbnails.push_back(flutter::EncodableValue(jpegData));
-          pBuffer->Unlock();
-        }
-        pBuffer->Release();
-      }
-      pSample->Release();
-    }
-  }
+		int index = 0;
 
-  pWICFactory->Release();
-  pSourceReader->Release();
-  DeleteFileW(tempFile);
-  result->Success(thumbnails);
-}
+		for (const auto& tsValue : *timestampsList) {
+			if (!std::holds_alternative<int>(tsValue)) {
+				++index;
+				continue;
+			}
+
+			int currentIndex = index++;
+			int64_t tsMs = static_cast<int64_t>(std::get<int>(tsValue));
+			double tsSec = tsMs / 1000.0;
+
+			futures.push_back(std::async(std::launch::async, [=, &thumbnails, &ffmpegPath, &tempVideoPath, &imageExt, &roundedWidth]() {
+				std::wstringstream timestampStream;
+				timestampStream.precision(3);
+				timestampStream << std::fixed << tsSec;
+
+				std::wstring tempImagePath = GenerateTempFilename(L"thumb_" + std::to_wstring(currentIndex), imageExt);
+
+				std::wstringstream cmd;
+				cmd << L"cmd.exe /C \""
+					<< L"\"" << ffmpegPath << L"\""
+					<< L" -ss " << timestampStream.str()
+					<< L" -i \"" << tempVideoPath << L"\""
+					<< L" -vframes 1 -vf scale=" << roundedWidth << L":-2 "
+					<< L"\"" << tempImagePath << L"\""
+					<< L"\"";
+
+				std::wstring cmdStr = cmd.str();
+				wprintf(L"[FFmpeg] Executing: %s\n", cmdStr.c_str());
+
+				int retCode = _wsystem(cmdStr.c_str());
+
+				if (retCode != 0) {
+					std::wstringstream err;
+					err << L"[FFmpeg] Exit code: " << retCode << L"\n";
+					err << L"[FFmpeg] Timestamp: " << tsSec << L" seconds\n";
+					err << L"[FFmpeg] Temp video path: " << tempVideoPath << L"\n";
+					err << L"[FFmpeg] Command:\n" << cmdStr << L"\n";
+					OutputDebugStringW(err.str().c_str());
+				}
+				else if (!fs::exists(tempImagePath)) {
+					std::wstringstream err;
+					err << L"FFmpeg succeeded but output image not found: " << tempImagePath;
+					OutputDebugStringW(err.str().c_str());
+				}
+				else {
+					std::ifstream in(tempImagePath, std::ios::binary);
+					std::vector<uint8_t> imageBytes((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+
+					thumbnails[currentIndex] = flutter::EncodableValue(imageBytes);
+				}
+
+				DeleteFileW(tempImagePath.c_str());
+				}));
+		}
+
+		// Wait for all to complete
+		for (auto& fut : futures) {
+			fut.get();
+		}
+
+
+		DeleteFileW(tempVideoPath.c_str());
+		result->Success(thumbnails);
+	}
 
 }  // namespace pro_video_editor

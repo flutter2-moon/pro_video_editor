@@ -68,7 +68,6 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
     final List<Uint8List> thumbnails = response?.cast<Uint8List>() ?? [];
 
     print('Read time ${sp.elapsedMilliseconds}ms');
-    print(thumbnails.length);
     return thumbnails;
   }
 

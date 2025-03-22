@@ -11,5 +11,5 @@
 | iOS            | ✅                      | ✅                       | ❌                        |
 | Web            | ✅                      | ✅                       | ❌                        |
 | macOS          | ✅                      | ✅                       | ❌                        |
-| Windows        | ✅                      | ❌                       | ❌                        |
+| Windows        | ✅                      | ✅                       | ❌                        |
 | Linux          | ❌                      | ❌                       | ❌                        |
