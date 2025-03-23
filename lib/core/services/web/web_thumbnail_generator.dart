@@ -54,6 +54,11 @@ class WebThumbnailGenerator {
 
       await video.onSeeked.first;
 
+      /// Short delay is important that the video frame is correctly loaded.
+      /// Without that delay is the possibility high that the video frame from
+      /// before is recorded again.
+      await Future.delayed(const Duration(milliseconds: 1));
+
       ctx.drawImage(video, 0, 0, width.toDouble(), height.toDouble());
 
       final blob = await canvas.toBlobAsync('image/${value.format}');
