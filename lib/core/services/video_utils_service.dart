@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:pro_video_editor/core/models/thumbnail/export_video_model.dart';
+
 import '/core/models/thumbnail/create_video_thumbnail_model.dart';
 import '/core/models/video/editor_video_model.dart';
 import '/core/models/video/video_information_model.dart';
@@ -43,5 +45,20 @@ class VideoUtilsService {
     CreateVideoThumbnail value,
   ) {
     return ProVideoEditorPlatform.instance.createVideoThumbnails(value);
+  }
+
+  /// Exports a video using the given [value] configuration.
+  ///
+  /// Delegates the export to the platform-specific implementation and returns
+  /// the resulting video bytes.
+  Future<Uint8List> exportVideo(ExportVideoModel value) {
+    return ProVideoEditorPlatform.instance.exportVideo(value);
+  }
+
+  /// A stream that emits export progress updates as a double from 0.0 to 1.0.
+  ///
+  /// Useful for showing progress indicators during the export process.
+  Stream<double> get exportProgressStream {
+    return ProVideoEditorPlatform.instance.exportProgressStream;
   }
 }

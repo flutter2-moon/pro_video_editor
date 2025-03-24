@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:pro_video_editor/core/models/thumbnail/export_video_model.dart';
 import 'package:pro_video_editor/core/models/video/editor_video_model.dart';
 import 'package:pro_video_editor/core/models/video/video_information_model.dart';
 
@@ -50,5 +51,20 @@ abstract class ProVideoEditorPlatform extends PlatformInterface {
   Future<List<Uint8List>> createVideoThumbnails(CreateVideoThumbnail value) {
     throw UnimplementedError(
         'createVideoThumbnails() has not been implemented.');
+  }
+
+  /// Exports a video using the given [value] configuration.
+  ///
+  /// Delegates the export to the platform-specific implementation and returns
+  /// the resulting video bytes.
+  Future<Uint8List> exportVideo(ExportVideoModel value) {
+    throw UnimplementedError('exportVideo() has not been implemented.');
+  }
+
+  /// A stream that emits export progress updates as a double from 0.0 to 1.0.
+  ///
+  /// Useful for showing progress indicators during the export process.
+  Stream<double> get exportProgressStream {
+    throw UnimplementedError('exportProgressStream has not been implemented.');
   }
 }

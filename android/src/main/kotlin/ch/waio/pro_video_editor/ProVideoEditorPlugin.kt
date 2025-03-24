@@ -1,24 +1,48 @@
 package ch.waio.pro_video_editor
 
+import android.os.Handler
+import android.os.Looper
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import ch.waio.pro_video_editor.src.ExportVideo
 import ch.waio.pro_video_editor.src.VideoProcessor
 import ch.waio.pro_video_editor.src.ThumbnailGenerator
 import kotlinx.coroutines.*
+import java.io.File
 
 /** ProVideoEditorPlugin */
 class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
-    private lateinit var channel: MethodChannel
+    private lateinit var methodChannel: MethodChannel
+    private lateinit var eventChannel: EventChannel
+    private var eventSink: EventChannel.EventSink? = null
+
+    private lateinit var exportVideo: ExportVideo
     private lateinit var videoProcessor: VideoProcessor
     private lateinit var thumbnailGenerator: ThumbnailGenerator
+
     private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "pro_video_editor")
-        channel.setMethodCallHandler(this)
+        methodChannel = MethodChannel(flutterPluginBinding.binaryMessenger, "pro_video_editor")
+        eventChannel =
+            EventChannel(flutterPluginBinding.binaryMessenger, "pro_video_editor_progress")
+
+        methodChannel.setMethodCallHandler(this)
+        eventChannel.setStreamHandler(object : EventChannel.StreamHandler {
+            override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                eventSink = events
+            }
+
+            override fun onCancel(arguments: Any?) {
+                eventSink = null
+            }
+        })
+
+        exportVideo = ExportVideo(flutterPluginBinding.applicationContext);
         videoProcessor = VideoProcessor(flutterPluginBinding.applicationContext)
         thumbnailGenerator = ThumbnailGenerator(flutterPluginBinding.applicationContext)
     }
@@ -38,9 +62,7 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
                     result.success(info)
                 } else {
                     result.error(
-                        "InvalidArgument",
-                        "Expected raw Uint8List (ByteArray/List<Int>)",
-                        null
+                        "InvalidArgument", "Expected raw Uint8List (ByteArray/List<Int>)", null
                     )
                 }
             }
@@ -80,6 +102,48 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
                 }
             }
 
+            "exportVideo" -> {
+                val videoBytes = call.argument<ByteArray>("videoBytes")
+                val imageBytes = call.argument<ByteArray>("imageBytes")
+                val outputFormat = call.argument<String>("outputFormat") ?: "mp4"
+                val preset = call.argument<String>("encodingPreset")
+                val videoDuration = call.argument<Int>("videoDuration")
+                val constantRateFactor = call.argument<Int>("constantRateFactor")
+
+                if (videoBytes == null || imageBytes == null || videoDuration == null || preset == null || constantRateFactor == null) {
+                    result.error(
+                        "INVALID_ARGUMENTS",
+                        "Missing videoBytes, imageBytes, videoDuration, preset or constantRateFactor",
+                        null
+                    )
+                    return
+                }
+
+                exportVideo.generate(videoBytes = videoBytes,
+                    imageBytes = imageBytes,
+                    outputFormat = outputFormat,
+                    preset = preset,
+                    videoDuration = videoDuration,
+                    constantRateFactor = constantRateFactor,
+                    onSuccess = { outputPath ->
+                        val outputFile = File(outputPath)
+                        val outputBytes = outputFile.readBytes()
+                        Handler(Looper.getMainLooper()).post {
+                            result.success(outputBytes)
+                        }
+                    },
+                    onError = { errorMsg ->
+                        Handler(Looper.getMainLooper()).post {
+                            result.error("FFMPEG_ERROR", errorMsg, null)
+                        }
+                    },
+                    onProgress = { progress ->
+                        Handler(Looper.getMainLooper()).post {
+                            eventSink?.success(progress)
+                        }
+                    })
+            }
+
             else -> {
                 result.notImplemented()
             }
@@ -87,7 +151,9 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        channel.setMethodCallHandler(null)
+        methodChannel.setMethodCallHandler(null)
+        eventChannel.setStreamHandler(null)
+        eventSink = null
         coroutineScope.cancel()
     }
 }
