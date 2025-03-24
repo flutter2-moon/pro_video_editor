@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
 import 'package:pro_video_editor_example/core/constants/example_constants.dart';
+import 'package:pro_video_editor_example/shared/utils/bytes_formatter.dart';
 
 /// A sample page demonstrating video thumbnail generation on the web.
 ///
@@ -74,7 +75,7 @@ class _ThumbnailExamplePageState extends State<ThumbnailExamplePage> {
           if (_informations != null)
             Column(
               children: [
-                Text('FileSize: ${_informations!.fileSize}'),
+                Text('FileSize: ${formatBytes(_informations!.fileSize)}'),
                 Text('Format: ${_informations!.extension}'),
                 Text('Resolution: ${_informations!.resolution}'),
                 Text('Duration: ${_informations!.duration.inMilliseconds}ms'),

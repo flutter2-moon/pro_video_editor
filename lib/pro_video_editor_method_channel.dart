@@ -79,6 +79,8 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
         'videoDuration': value.videoDuration.inMilliseconds,
         'constantRateFactor': value.constantRateFactor,
         'encodingPreset': value.encodingPreset.name,
+        'startTime': value.startTime?.inSeconds,
+        'endTime': value.endTime?.inSeconds,
       },
     );
 

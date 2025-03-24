@@ -17,7 +17,12 @@ class ExportVideoModel {
     required this.videoDuration,
     this.outputQuality = OutputQuality.medium,
     this.encodingPreset = EncodingPreset.fast,
-  });
+    this.startTime,
+    this.endTime,
+  }) : assert(
+          startTime == null || endTime == null || startTime < endTime,
+          'startTime must be before endTime',
+        );
 
   /// The target format for the exported video.
   final VideoOutputFormat outputFormat;
@@ -36,6 +41,16 @@ class ExportVideoModel {
 
   /// FFmpeg encoding preset balancing speed and compression.
   final EncodingPreset encodingPreset;
+
+  /// The timestamp where the export should begin, if trimming is needed.
+  ///
+  /// If null, the export will start from the beginning of the video.
+  final Duration? startTime;
+
+  /// The timestamp where the export should end, if trimming is needed.
+  ///
+  /// If null, the export will continue to the end of the video.
+  final Duration? endTime;
 
   /// The FFmpeg constant rate factor (CRF) for the selected [outputQuality].
   ///

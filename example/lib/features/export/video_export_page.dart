@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
-import 'package:pro_video_editor/core/models/thumbnail/export_video_model.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
+
+import '../../shared/utils/bytes_formatter.dart';
 
 /// A page that handles the video export workflow.
 ///
@@ -66,6 +67,10 @@ class _VideoExportPageState extends State<VideoExportPage> {
         imageBytes: imageBytes,
         outputFormat: VideoOutputFormat.mp4,
         videoDuration: infos.duration,
+        // startTime: const Duration(seconds: 15),
+        // endTime: const Duration(seconds: 20)
+        // encodingPreset: EncodingPreset.slow,
+        // outputQuality: OutputQuality.lossless,
       ),
     );
 
@@ -181,7 +186,7 @@ class _VideoExportPageState extends State<VideoExportPage> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
-                  'Video exported: ${_videoBytes!.lengthInBytes} bytes in '
+                  'Video exported: ${formatBytes(_videoBytes!.lengthInBytes)} bytes in '
                   '${_generationTime.inMilliseconds}ms',
                 ),
               ),

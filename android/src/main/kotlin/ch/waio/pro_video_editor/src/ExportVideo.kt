@@ -19,6 +19,8 @@ class ExportVideo(private val context: Context) {
         imageBytes: ByteArray,
         outputFormat: String,
         preset: String,
+        startTime: Int?,
+        endTime: Int?,
         videoDuration: Int,
         constantRateFactor: Int,
         onSuccess: (String) -> Unit,
@@ -35,30 +37,62 @@ class ExportVideo(private val context: Context) {
                 videoFile.writeBytes(videoBytes)
                 imageFile.writeBytes(imageBytes)
 
-                val ffmpegCommand = listOf(
-                    "-y",
-                    "-i",
-                    videoFile.absolutePath,
-                    "-i",
-                    imageFile.absolutePath,
-                    "-filter_complex",
-                    "[1:v][0:v]scale2ref=w=iw:h=ih[ovr][base];[base][ovr]overlay=0:0",
-                    "-c:v",
-                    "libx264",
-                    "-preset",
-                    preset,
-                    "-crf",
-                    constantRateFactor.toString(),
-                    "-pix_fmt",
-                    "yuv420p",
-                    "-c:a",
-                    "copy",
-                    outputFile.absolutePath
-                ).joinToString(" ")
+                val ffmpegCommand = mutableListOf<String>()
 
-                Log.d("ExportVideo", "Running FFmpeg command: $ffmpegCommand")
+                // Add start and end only if provided
+                startTime?.let {
+                    // Trim start time (in seconds or HH:MM:SS)
+                    ffmpegCommand.addAll(listOf("-ss", it.toString()))
+                }
 
-                FFmpegKit.executeAsync(ffmpegCommand, { session ->
+                endTime?.let {
+                    // Trim end time (in seconds or HH:MM:SS)
+                    ffmpegCommand.addAll(listOf("-to", it.toString()))
+                }
+
+                // TODO: Add transformations => crop, rotate, flip
+                // TODO: Add filters/ tune adjustments
+                // TODO: Add pixelate/ blur area
+                ffmpegCommand.addAll(
+                    listOf(
+                        // Overwrite output file if it exists
+                        "-y",
+
+                        // Input 0: the main video
+                        "-i", videoFile.absolutePath,
+
+                        // Input 1: the overlay image (e.g. a transparent PNG)
+                        "-i", imageFile.absolutePath,
+
+                        // Apply filter chain:
+                        // 1. Use scale2ref to resize the overlay image to match the video's size
+                        // 2. Overlay the scaled image on top of the base video at position (0,0)
+                        "-filter_complex", "[1:v][0:v]scale2ref=w=iw:h=ih[ovr][base];[base][ovr]overlay=0:0",
+
+                        // Set the video codec to libx264 (H.264)
+                        "-c:v", "libx264",
+
+                        // Set encoding preset (affects speed vs. compression ratio)
+                        "-preset", preset,
+
+                        // Set quality using CRF (lower is better quality, 0 = lossless)
+                        "-crf", constantRateFactor.toString(),
+
+                        // Set pixel format for broad compatibility (especially for Android/iOS playback)
+                        "-pix_fmt", "yuv420p",
+
+                        // Copy the original audio stream without re-encoding
+                        "-c:a", "copy",
+
+                        // Output file path
+                        outputFile.absolutePath
+                    )
+                )
+                val commandString = ffmpegCommand.joinToString(" ")
+
+                Log.d("ExportVideo", "Running FFmpeg command: $commandString")
+
+                FFmpegKit.executeAsync(commandString, { session ->
                     val returnCode = session.returnCode
                     if (ReturnCode.isSuccess(returnCode)) {
                         Handler(Looper.getMainLooper()).post {
@@ -73,9 +107,19 @@ class ExportVideo(private val context: Context) {
                 }, { log ->
                     Log.d("ExportVideo", log.message)
                 }, { stat ->
+                    val trimmedDuration = if (startTime != null && endTime != null) {
+                        ((endTime - startTime) * 1000).coerceAtLeast(1)
+                    } else if (startTime != null) {
+                        videoDuration - startTime * 1000
+                    } else if (endTime != null) {
+                        endTime * 1000
+                    } else {
+                        videoDuration
+                    }
+                    
                     val time = stat.time
-                    if (videoDuration > 0 && time > 0) {
-                        val progress = time.toDouble() / videoDuration.toDouble()
+                    if (trimmedDuration > 0 && time > 0) {
+                        val progress = time.toDouble() / trimmedDuration.toDouble()
                         Handler(Looper.getMainLooper()).post {
                             onProgress?.invoke(progress.coerceIn(0.0, 1.0))
                         }

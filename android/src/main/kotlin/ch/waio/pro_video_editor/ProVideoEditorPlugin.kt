@@ -108,12 +108,15 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
                 val outputFormat = call.argument<String>("outputFormat") ?: "mp4"
                 val preset = call.argument<String>("encodingPreset")
                 val videoDuration = call.argument<Int>("videoDuration")
+                val startTime = call.argument<Int>("startTime")
+                val endTime = call.argument<Int>("endTime")
                 val constantRateFactor = call.argument<Int>("constantRateFactor")
 
-                if (videoBytes == null || imageBytes == null || videoDuration == null || preset == null || constantRateFactor == null) {
+                if (videoBytes == null || imageBytes == null || videoDuration == null || 
+                    preset == null || constantRateFactor == null) {
                     result.error(
                         "INVALID_ARGUMENTS",
-                        "Missing videoBytes, imageBytes, videoDuration, preset or constantRateFactor",
+                        "Missing parameters",
                         null
                     )
                     return
@@ -123,6 +126,8 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
                     imageBytes = imageBytes,
                     outputFormat = outputFormat,
                     preset = preset,
+                    startTime = startTime,
+                    endTime = endTime,
                     videoDuration = videoDuration,
                     constantRateFactor = constantRateFactor,
                     onSuccess = { outputPath ->
