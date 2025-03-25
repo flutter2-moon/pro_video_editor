@@ -5,18 +5,19 @@
 
 ### Platform Support
 
-| Platform       | `getVideoInformation` | `createVideoThumbnails` | `parseWithLayers` | `parseWithBlur` | `parseWithTransform` | `parseWithFilters` |
-|----------------|------------------------|--------------------------|--------------------|------------------|------------------------|---------------------|
-| Android        | ✅                     | ✅                       | ✅                 | ✅               | ✅                     | ❌                  |
-| iOS            | ✅                     | ✅                       | ❌                 | ❌               | ❌                     | ❌                  |
-| Web            | ✅                     | ✅                       | ❌                 | ❌               | ❌                     | ❌                  |
-| macOS          | ✅                     | ✅                       | ❌                 | ❌               | ❌                     | ❌                  |
-| Windows        | ✅                     | ✅                       | ❌                 | ❌               | ❌                     | ❌                  |
-| Linux          | ⚠️                     | ⚠️                       | ❌                 | ❌               | ❌                     | ❌                  |
+| Platform       | `getVideoInformation`  | `createVideoThumbnails`   | `parseWithLayers`  | `parseWithBlur`   | `parseWithTransform`    | `parseWithFilters`  | `parseWithCensorLayers` |
+|----------------|------------------------|---------------------------|--------------------|-------------------|-------------------------|---------------------|-------------------------|
+| Android        | ✅                     | ✅                       | ✅                 | ✅               | ✅                     | 🧪                  | ❌                      |
+| iOS            | ✅                     | ✅                       | ❌                 | ❌               | ❌                     | ❌                  | ❌                      |
+| Web            | ✅                     | ✅                       | ❌                 | ❌               | ❌                     | ❌                  | ❌                      |
+| macOS          | ✅                     | ✅                       | ❌                 | ❌               | ❌                     | ❌                  | ❌                      |
+| Windows        | ✅                     | ✅                       | ❌                 | ❌               | ❌                     | ❌                  | ❌                      |
+| Linux          | ⚠️                     | ⚠️                       | ❌                 | ❌               | ❌                     | ❌                  | ❌                      |
 
 
 
 #### Legend
 - ✅ Supported and tested  
+- 🧪 Supported but visual output differs from Flutter
 - ⚠️ Supported but not tested
 - ❌ Not supported but planned

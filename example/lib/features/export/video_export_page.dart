@@ -6,8 +6,10 @@ import 'package:flutter/rendering.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
+import 'package:pro_video_editor_example/shared/utils/filter_generator/filter_presets.dart';
 
 import '../../shared/utils/bytes_formatter.dart';
+import '../../shared/widgets/filter_generator.dart';
 
 /// A page that handles the video export workflow.
 ///
@@ -35,6 +37,9 @@ class _VideoExportPageState extends State<VideoExportPage> {
 
   final double _blur = 0;
   final _transform = const ExportTransform();
+  final List<List<double>> _colorFilters = [
+    ...PresetFilters.xProII.filters,
+  ];
 
   @override
   void initState() {
@@ -85,30 +90,7 @@ class _VideoExportPageState extends State<VideoExportPage> {
       // outputQuality: OutputQuality.lossless,
       blur: _blur,
       transform: _transform,
-      colorFilters: [
-        [
-          1.0,
-          0.0,
-          0.0,
-          0.0,
-          50.0,
-          0.0,
-          1.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          1.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          1.0,
-          0.0,
-        ]
-      ],
+      colorFilters: _colorFilters,
     );
 
     final result = await VideoUtilsService.instance.exportVideo(data);
@@ -145,7 +127,10 @@ class _VideoExportPageState extends State<VideoExportPage> {
       aspectRatio: 1280 / 720,
       child: Stack(
         children: [
-          Video(controller: _controllerContent),
+          ColorFilterGenerator(
+            filters: _colorFilters,
+            child: Video(controller: _controllerContent),
+          ),
           ClipRect(
             clipBehavior: Clip.hardEdge,
             child: BackdropFilter(

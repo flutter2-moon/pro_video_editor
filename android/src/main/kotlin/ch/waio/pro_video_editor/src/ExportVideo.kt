@@ -43,7 +43,7 @@ class ExportVideo(private val context: Context) {
 
                 if (!filters.isNullOrBlank()) {
                     // Apply filters to video stream first
-                    filterGraph.append("[0:v]$filters[vid];")                     // e.g. eq=..., boxblur=...
+                    filterGraph.append("[0:v]$filters[vid];")
                     filterGraph.append("[1:v][vid]scale2ref=w=iw:h=ih[ovr][base];")
                     filterGraph.append("[base][ovr]overlay=0:0")
                 } else {
@@ -67,10 +67,6 @@ class ExportVideo(private val context: Context) {
                     ffmpegCommand.addAll(listOf("-to", it.toString()))
                 }
 
-                // TODO: Add transformations => crop, rotate, flip
-                // TODO: Add filters/ tune adjustments
-                // TODO: Add blur
-                // TODO: Add pixelate/ blur area
                 ffmpegCommand.addAll(
                     listOf(
                         // Overwrite output file if it exists
