@@ -15,10 +15,13 @@ class ExportVideoModel {
     required this.videoBytes,
     required this.imageBytes,
     required this.videoDuration,
+    required this.devicePixelRatio,
     this.outputQuality = OutputQuality.medium,
     this.encodingPreset = EncodingPreset.fast,
     this.startTime,
     this.endTime,
+    this.blur = 1,
+    this.colorFilters = const [],
   }) : assert(
           startTime == null || endTime == null || startTime < endTime,
           'startTime must be before endTime',
@@ -52,6 +55,11 @@ class ExportVideoModel {
   /// If null, the export will continue to the end of the video.
   final Duration? endTime;
 
+  final List<List<num>> colorFilters;
+
+  final double blur;
+  final double devicePixelRatio;
+
   /// The FFmpeg constant rate factor (CRF) for the selected [outputQuality].
   ///
   /// Lower CRF means better quality and larger file size.
@@ -76,6 +84,61 @@ class ExportVideoModel {
       case OutputQuality.potato:
         return 51;
     }
+  }
+
+  double get adaptiveKernelMultiplier {
+    if (blur < 5) return 1.2;
+    if (blur < 15) return 1.35;
+    if (blur < 30) return 1.4;
+    return 1.5;
+  }
+
+  String get complexFilter {
+    final ffmpegSigma = blur * devicePixelRatio * adaptiveKernelMultiplier;
+    return 'gblur=sigma=$ffmpegSigma';
+  }
+
+  String get _colorFilters {
+    if (colorFilters.isEmpty) return '';
+
+    for (final matrix in colorFilters) {
+      if (matrix.length != 20) {
+        throw ArgumentError('Each color matrix must have exactly 20 values.');
+      }
+    }
+
+    // Merge all matrices
+    List<double> merged =
+        List.from(colorFilters.first.map((e) => e.toDouble()));
+    for (int m = 1; m < colorFilters.length; m++) {
+      final a = merged;
+      final b = colorFilters[m].map((e) => e.toDouble()).toList();
+      final result = List<double>.filled(20, 0.0);
+      for (int row = 0; row < 4; row++) {
+        for (int col = 0; col < 5; col++) {
+          double sum = 0.0;
+          for (int i = 0; i < 4; i++) {
+            sum += a[row * 5 + i] * b[i * 5 + col];
+          }
+          if (col == 4) sum += a[row * 5 + 4];
+          result[row * 5 + col] = sum;
+        }
+      }
+      merged = result;
+    }
+
+    String expr(double r, double g, double b, double a, double bias) {
+      final e = '${r}*r(X,Y)+${g}*g(X,Y)+${b}*b(X,Y)+${a}*a(X,Y)+$bias';
+      return 'clip($e,0,255)';
+    }
+
+    final rExpr = expr(merged[0], merged[1], merged[2], merged[3], merged[4]);
+    final gExpr = expr(merged[5], merged[6], merged[7], merged[8], merged[9]);
+    final bExpr =
+        expr(merged[10], merged[11], merged[12], merged[13], merged[14]);
+
+    // Wrap expressions in single quotes (FFmpeg wants that for complex math)
+    return "geq=r='$rExpr':g='$gExpr':b='$bExpr'";
   }
 }
 

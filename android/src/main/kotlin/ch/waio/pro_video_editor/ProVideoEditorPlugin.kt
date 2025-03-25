@@ -111,7 +111,8 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
                 val startTime = call.argument<Int>("startTime")
                 val endTime = call.argument<Int>("endTime")
                 val constantRateFactor = call.argument<Int>("constantRateFactor")
-
+                val filters = call.argument<String>("filters") ?: ""
+                
                 if (videoBytes == null || imageBytes == null || videoDuration == null || 
                     preset == null || constantRateFactor == null) {
                     result.error(
@@ -130,6 +131,7 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
                     endTime = endTime,
                     videoDuration = videoDuration,
                     constantRateFactor = constantRateFactor,
+                    filters = filters,
                     onSuccess = { outputPath ->
                         val outputFile = File(outputPath)
                         val outputBytes = outputFile.readBytes()

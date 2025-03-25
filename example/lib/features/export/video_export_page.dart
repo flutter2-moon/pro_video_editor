@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -5,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../shared/utils/bytes_formatter.dart';
 
@@ -33,10 +36,19 @@ class _VideoExportPageState extends State<VideoExportPage> {
 
   Duration _generationTime = Duration.zero;
 
+  final double _blur = 10;
+
   @override
   void initState() {
     super.initState();
-    _playerContent.open(Media('asset:///assets/demo.mp4'), play: false);
+    _playerContent.open(Media('asset:///assets/demo.mp4'), play: true);
+  }
+
+  @override
+  void dispose() {
+    _playerContent.dispose();
+    _playerPreview.dispose();
+    super.dispose();
   }
 
   Future<Uint8List> _captureLayerContent() async {
@@ -61,18 +73,46 @@ class _VideoExportPageState extends State<VideoExportPage> {
       EditorVideo(byteArray: videoBytes),
     );
 
-    final result = await VideoUtilsService.instance.exportVideo(
-      ExportVideoModel(
-        videoBytes: videoBytes,
-        imageBytes: imageBytes,
-        outputFormat: VideoOutputFormat.mp4,
-        videoDuration: infos.duration,
-        // startTime: const Duration(seconds: 15),
-        // endTime: const Duration(seconds: 20)
-        // encodingPreset: EncodingPreset.slow,
-        // outputQuality: OutputQuality.lossless,
-      ),
+    if (!mounted) return;
+
+    var data = ExportVideoModel(
+      videoBytes: videoBytes,
+      imageBytes: imageBytes,
+      outputFormat: VideoOutputFormat.mp4,
+      videoDuration: infos.duration,
+      devicePixelRatio: MediaQuery.devicePixelRatioOf(context),
+      // startTime: const Duration(seconds: 15),
+      // endTime: const Duration(seconds: 20)
+      encodingPreset: EncodingPreset.ultrafast,
+      // outputQuality: OutputQuality.lossless,
+      blur: _blur,
+      colorFilters: [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          50.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+        ]
+      ],
     );
+
+    final result = await VideoUtilsService.instance.exportVideo(data);
 
     _generationTime = sp.elapsed;
     await _playerPreview.open(await Media.memory(result));
@@ -107,6 +147,16 @@ class _VideoExportPageState extends State<VideoExportPage> {
       child: Stack(
         children: [
           Video(controller: _controllerContent),
+          ClipRect(
+            clipBehavior: Clip.hardEdge,
+            child: BackdropFilter(
+              filter: ui.ImageFilter.blur(sigmaX: _blur, sigmaY: _blur),
+              child: Container(
+                alignment: Alignment.center,
+                color: Colors.white.withValues(alpha: 0.0),
+              ),
+            ),
+          ),
           AspectRatio(
             aspectRatio: 1280 / 720,
             child: RepaintBoundary(
@@ -186,8 +236,8 @@ class _VideoExportPageState extends State<VideoExportPage> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
-                  'Video exported: ${formatBytes(_videoBytes!.lengthInBytes)} bytes in '
-                  '${_generationTime.inMilliseconds}ms',
+                  'Video exported: ${formatBytes(_videoBytes!.lengthInBytes)} '
+                  'bytes in ${_generationTime.inMilliseconds}ms',
                 ),
               ),
             ],

@@ -81,6 +81,7 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
         'encodingPreset': value.encodingPreset.name,
         'startTime': value.startTime?.inSeconds,
         'endTime': value.endTime?.inSeconds,
+        'filters': value.complexFilter,
       },
     );
 

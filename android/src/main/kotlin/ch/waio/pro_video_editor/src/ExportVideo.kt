@@ -23,6 +23,7 @@ class ExportVideo(private val context: Context) {
         endTime: Int?,
         videoDuration: Int,
         constantRateFactor: Int,
+        filters: String,
         onSuccess: (String) -> Unit,
         onError: (String) -> Unit,
         onProgress: ((Double) -> Unit)? = null
@@ -36,6 +37,22 @@ class ExportVideo(private val context: Context) {
 
                 videoFile.writeBytes(videoBytes)
                 imageFile.writeBytes(imageBytes)
+
+                // Color filter logic
+                val filterGraph = StringBuilder()
+
+                if (!filters.isNullOrBlank()) {
+                    // Apply filters to video stream first
+                    filterGraph.append("[0:v]$filters[vid];")                     // e.g. eq=..., boxblur=...
+                    filterGraph.append("[1:v][vid]scale2ref=w=iw:h=ih[ovr][base];")
+                    filterGraph.append("[base][ovr]overlay=0:0")
+                } else {
+                    // No filters, use original video
+                    filterGraph.append("[1:v][0:v]scale2ref=w=iw:h=ih[ovr][base];")
+                    filterGraph.append("[base][ovr]overlay=0:0")
+                }
+                
+                val fullFilter = filterGraph.toString()
 
                 val ffmpegCommand = mutableListOf<String>()
 
@@ -52,6 +69,7 @@ class ExportVideo(private val context: Context) {
 
                 // TODO: Add transformations => crop, rotate, flip
                 // TODO: Add filters/ tune adjustments
+                // TODO: Add blur
                 // TODO: Add pixelate/ blur area
                 ffmpegCommand.addAll(
                     listOf(
@@ -64,10 +82,8 @@ class ExportVideo(private val context: Context) {
                         // Input 1: the overlay image (e.g. a transparent PNG)
                         "-i", imageFile.absolutePath,
 
-                        // Apply filter chain:
-                        // 1. Use scale2ref to resize the overlay image to match the video's size
-                        // 2. Overlay the scaled image on top of the base video at position (0,0)
-                        "-filter_complex", "[1:v][0:v]scale2ref=w=iw:h=ih[ovr][base];[base][ovr]overlay=0:0",
+                        // Apply filter chain
+                        "-filter_complex", fullFilter,
 
                         // Set the video codec to libx264 (H.264)
                         "-c:v", "libx264",
