@@ -1,3 +1,6 @@
+## 0.0.4
+- **FEAT**: Add video parser functions for android
+
 ## 0.0.3
 - **FIX**: Resolve thumbnail generation on web.
 
