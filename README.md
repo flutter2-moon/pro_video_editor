@@ -5,14 +5,15 @@
 
 ### Platform Support
 
-| Platform       | `getVideoInformation`  | `createVideoThumbnails`   | `generateVideoFromWidget` |
-|----------------|-------------------------|---------------------------|---------------------------|
-| Android        | ✅                      | ✅                       | ❌                        |
-| iOS            | ✅                      | ✅                       | ❌                        |
-| Web            | ✅                      | ✅                       | ❌                        |
-| macOS          | ✅                      | ✅                       | ❌                        |
-| Windows        | ✅                      | ✅                       | ❌                        |
-| Linux          | ⚠️                      | ⚠️                       | ❌                        |
+| Platform       | `getVideoInformation` | `createVideoThumbnails` | `parseWithLayers` | `parseWithBlur` | `parseWithTransform` | `parseWithFilters` |
+|----------------|------------------------|--------------------------|--------------------|------------------|------------------------|---------------------|
+| Android        | ✅                     | ✅                       | ✅                 | ✅               | ✅                     | ❌                  |
+| iOS            | ✅                     | ✅                       | ❌                 | ❌               | ❌                     | ❌                  |
+| Web            | ✅                     | ✅                       | ❌                 | ❌               | ❌                     | ❌                  |
+| macOS          | ✅                     | ✅                       | ❌                 | ❌               | ❌                     | ❌                  |
+| Windows        | ✅                     | ✅                       | ❌                 | ❌               | ❌                     | ❌                  |
+| Linux          | ⚠️                     | ⚠️                       | ❌                 | ❌               | ❌                     | ❌                  |
+
 
 
 #### Legend
