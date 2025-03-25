@@ -15,7 +15,7 @@ A new Flutter plugin project.
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
-  s.dependency 'ffmpeg-kit-ios-min'
+  s.dependency 'ffmpeg-kit-ios-full'
   s.platform = :ios, '12.1'
 
   # Flutter.framework does not contain a i386 slice.

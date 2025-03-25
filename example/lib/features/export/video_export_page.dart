@@ -6,10 +6,9 @@ import 'package:flutter/rendering.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
-import 'package:pro_video_editor_example/shared/utils/filter_generator/filter_presets.dart';
 
-import '../../shared/utils/bytes_formatter.dart';
-import '../../shared/widgets/filter_generator.dart';
+import '/shared/utils/bytes_formatter.dart';
+import '/shared/widgets/filter_generator.dart';
 
 /// A page that handles the video export workflow.
 ///
@@ -38,7 +37,7 @@ class _VideoExportPageState extends State<VideoExportPage> {
   final double _blur = 0;
   final _transform = const ExportTransform();
   final List<List<double>> _colorFilters = [
-    ...PresetFilters.xProII.filters,
+    // ...PresetFilters.xProII.filters,
   ];
 
   @override
