@@ -6,6 +6,7 @@ import '/core/models/video/editor_video_model.dart';
 import '/shared/utils/parser/double_parser.dart';
 import '/shared/utils/parser/int_parser.dart';
 import 'core/models/thumbnail/create_video_thumbnail_model.dart';
+import 'core/models/video/export_video_model.dart';
 import 'core/models/video/video_information_model.dart';
 import 'pro_video_editor_platform_interface.dart';
 
@@ -14,6 +15,7 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
   /// The method channel used to interact with the native platform.
   @visibleForTesting
   final methodChannel = const MethodChannel('pro_video_editor');
+  final _progressChannel = const EventChannel('pro_video_editor_progress');
 
   @override
   Future<String?> getPlatformVersion() async {
@@ -64,6 +66,37 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
     final List<Uint8List> thumbnails = response?.cast<Uint8List>() ?? [];
 
     return thumbnails;
+  }
+
+  @override
+  Future<Uint8List> exportVideo(ExportVideoModel value) async {
+    final Uint8List? result = await methodChannel.invokeMethod<Uint8List>(
+      'exportVideo',
+      {
+        'videoBytes': value.videoBytes,
+        'imageBytes': value.imageBytes,
+        'outputFormat': value.outputFormat.name,
+        'videoDuration': value.videoDuration.inMilliseconds,
+        'constantRateFactor': value.constantRateFactor,
+        'encodingPreset': value.encodingPreset.name,
+        'startTime': value.startTime?.inSeconds,
+        'endTime': value.endTime?.inSeconds,
+        'filters': value.complexFilter,
+      },
+    );
+
+    if (result == null) {
+      throw ArgumentError('Failed to export the video');
+    }
+
+    return result;
+  }
+
+  @override
+  Stream<double> get exportProgressStream {
+    return _progressChannel
+        .receiveBroadcastStream()
+        .map((event) => event as double);
   }
 
   String _getFileExtension(Uint8List videoBytes) {
