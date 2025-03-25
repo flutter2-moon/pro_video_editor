@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:pro_video_editor/core/models/thumbnail/export_video_model.dart';
+import 'package:pro_video_editor/core/models/video/export_video_model.dart';
 
 import '/core/models/thumbnail/create_video_thumbnail_model.dart';
 import '/core/models/video/editor_video_model.dart';

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -6,9 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
-import 'package:video_player/video_player.dart';
 
 import '../../shared/utils/bytes_formatter.dart';
 
@@ -36,7 +33,8 @@ class _VideoExportPageState extends State<VideoExportPage> {
 
   Duration _generationTime = Duration.zero;
 
-  final double _blur = 10;
+  final double _blur = 0;
+  final _transform = const ExportTransform();
 
   @override
   void initState() {
@@ -86,6 +84,7 @@ class _VideoExportPageState extends State<VideoExportPage> {
       encodingPreset: EncodingPreset.ultrafast,
       // outputQuality: OutputQuality.lossless,
       blur: _blur,
+      transform: _transform,
       colorFilters: [
         [
           1.0,

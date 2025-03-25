@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:pro_video_editor/core/models/video/export_transform_model.dart';
 
 /// A model that holds all required data for exporting a video.
 ///
@@ -20,7 +21,8 @@ class ExportVideoModel {
     this.encodingPreset = EncodingPreset.fast,
     this.startTime,
     this.endTime,
-    this.blur = 1,
+    this.blur = 0,
+    this.transform = const ExportTransform(),
     this.colorFilters = const [],
   }) : assert(
           startTime == null || endTime == null || startTime < endTime,
@@ -55,10 +57,26 @@ class ExportVideoModel {
   /// If null, the export will continue to the end of the video.
   final Duration? endTime;
 
+  /// A 4x5 matrix used to apply color filters (e.g., saturation, brightness).
+  ///
+  /// This is typically passed to FFmpeg as a color matrix filter.
   final List<List<num>> colorFilters;
 
+  /// Amount of blur to apply (in logical pixels).
+  ///
+  /// Higher values result in a stronger blur effect.
   final double blur;
+
+  /// The device pixel ratio used for rendering accuracy and scale adjustments.
+  ///
+  /// This helps maintain consistent visual results across screen densities.
   final double devicePixelRatio;
+
+  /// Transformation settings like resize, rotation, offset, and flipping.
+  ///
+  /// Used to control how the video or image is positioned and modified during
+  /// export.
+  final ExportTransform transform;
 
   /// The FFmpeg constant rate factor (CRF) for the selected [outputQuality].
   ///
@@ -86,16 +104,64 @@ class ExportVideoModel {
     }
   }
 
-  double get adaptiveKernelMultiplier {
-    if (blur < 5) return 1.2;
-    if (blur < 15) return 1.35;
-    if (blur < 30) return 1.4;
-    return 1.5;
+  String get _blurFilter {
+    if (blur <= 0) return '';
+    double adaptiveKernelMultiplier() {
+      if (blur < 5) return 1.2;
+      if (blur < 15) return 1.35;
+      if (blur < 30) return 1.4;
+      return 1.5;
+    }
+
+    final ffmpegSigma = blur * devicePixelRatio * adaptiveKernelMultiplier();
+    return 'gblur=sigma=$ffmpegSigma';
   }
 
-  String get complexFilter {
-    final ffmpegSigma = blur * devicePixelRatio * adaptiveKernelMultiplier;
-    return 'gblur=sigma=$ffmpegSigma';
+  String get _cropFilter {
+    // Return if there are no transformations
+    if (transform == const ExportTransform()) return '';
+
+    int? width = transform.width;
+    int? height = transform.height;
+    int rotateTurns = transform.rotateTurns;
+    String? x = transform.x;
+    String? y = transform.y;
+    bool flipX = transform.flipX;
+    bool flipY = transform.flipY;
+
+    final widthExpr = width?.toString() ?? 'in_w';
+    final heightExpr = height?.toString() ?? 'in_h';
+
+    final xExpr = x ?? '(in_w-$widthExpr)/2';
+    final yExpr = y ?? '(in_h-$heightExpr)/2';
+
+    final crop = 'crop=$widthExpr:$heightExpr:$xExpr:$yExpr';
+
+    String rotate = '';
+    switch (rotateTurns % 4) {
+      case 1:
+        rotate = 'rotate=PI/2';
+        break;
+      case 2:
+        rotate = 'rotate=PI';
+        break;
+      case 3:
+        rotate = 'rotate=3*PI/2';
+        break;
+    }
+
+    final flips = <String>[
+      if (flipX) 'hflip',
+      if (flipY) 'vflip',
+    ];
+
+    final allFilters = <String>[
+      crop,
+      if (rotate.isNotEmpty) rotate,
+      ...flips,
+    ];
+
+    return allFilters.join(',');
   }
 
   String get _colorFilters {
@@ -128,7 +194,7 @@ class ExportVideoModel {
     }
 
     String expr(double r, double g, double b, double a, double bias) {
-      final e = '${r}*r(X,Y)+${g}*g(X,Y)+${b}*b(X,Y)+${a}*a(X,Y)+$bias';
+      final e = '$r*r(X,Y)+$g*g(X,Y)+$b*b(X,Y)+$a*a(X,Y)+$bias';
       return 'clip($e,0,255)';
     }
 
@@ -139,6 +205,17 @@ class ExportVideoModel {
 
     // Wrap expressions in single quotes (FFmpeg wants that for complex math)
     return "geq=r='$rExpr':g='$gExpr':b='$bExpr'";
+  }
+
+  /// Returns a combined FFmpeg complex filter string based on active filters.
+  ///
+  /// Includes blur and crop filters if defined. Filters are joined with a comma
+  /// and empty filters are excluded.
+  String get complexFilter {
+    var filters = [_blurFilter, _cropFilter]
+      ..removeWhere((item) => item.isEmpty);
+
+    return filters.join(',');
   }
 }
 

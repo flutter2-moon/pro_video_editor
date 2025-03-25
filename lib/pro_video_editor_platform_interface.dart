@@ -1,11 +1,11 @@
 import 'dart:typed_data';
 
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-import 'package:pro_video_editor/core/models/thumbnail/export_video_model.dart';
-import 'package:pro_video_editor/core/models/video/editor_video_model.dart';
-import 'package:pro_video_editor/core/models/video/video_information_model.dart';
 
 import '/core/models/thumbnail/create_video_thumbnail_model.dart';
+import '/core/models/video/editor_video_model.dart';
+import '/core/models/video/export_video_model.dart';
+import '/core/models/video/video_information_model.dart';
 import 'pro_video_editor_method_channel.dart';
 
 /// An abstract class that defines the platform interface for the
