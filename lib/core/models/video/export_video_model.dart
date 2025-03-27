@@ -134,8 +134,8 @@ class ExportVideoModel {
     final rotateTurns = transform.rotateTurns % 4;
     final isSwapped = rotateTurns % 2 != 0;
 
-    final width = transform.width;
-    final height = transform.height;
+    final rawWidth = transform.width;
+    final rawHeight = transform.height;
     final x = transform.x;
     final y = transform.y;
     final flipX = transform.flipX;
@@ -149,11 +149,19 @@ class ExportVideoModel {
     };
 
     String? crop;
-    if (width != null && height != null) {
-      final cropWidth = isSwapped ? height.toString() : width.toString();
-      final cropHeight = isSwapped ? width.toString() : height.toString();
+    if (rawWidth != null && rawHeight != null) {
+      // Swap if rotated
+      final unsanitizedWidth = isSwapped ? rawHeight : rawWidth;
+      final unsanitizedHeight = isSwapped ? rawWidth : rawHeight;
+
+      // Ensure even dimensions
+      final cropWidth = (unsanitizedWidth ~/ 2) * 2;
+      final cropHeight = (unsanitizedHeight ~/ 2) * 2;
+
+      // X and Y can remain null for centering or use as-is
       final xExpr = x ?? '(in_w-$cropWidth)/2';
       final yExpr = y ?? '(in_h-$cropHeight)/2';
+
       crop = 'crop=$cropWidth:$cropHeight:$xExpr:$yExpr';
     }
 
@@ -168,8 +176,7 @@ class ExportVideoModel {
       ...flips,
     ];
 
-    final result = filters.join(',');
-    return result;
+    return filters.join(',');
   }
 
   /// Returns a combined FFmpeg complex filter string based on active filters.
