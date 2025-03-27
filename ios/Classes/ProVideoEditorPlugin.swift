@@ -66,6 +66,7 @@ public class ProVideoEditorPlugin: NSObject, FlutterPlugin {
         let startTime = args["startTime"] as? Int
         let endTime = args["endTime"] as? Int
         let filters = args["filters"] as? String ?? ""
+        let colorMatrices = args["colorMatrices"] as? [[Double]]
 
         ExportVideo.generate(
             videoBytes: videoData.data,
@@ -77,6 +78,7 @@ public class ProVideoEditorPlugin: NSObject, FlutterPlugin {
             videoDuration: videoDuration,
             constantRateFactor: crf,
             filters: filters,
+            colorMatrices: colorMatrices,
             onSuccess: { outputPath in
                 if let fileData = try? Data(contentsOf: URL(fileURLWithPath: outputPath)) {
                     result(FlutterStandardTypedData(bytes: fileData))
