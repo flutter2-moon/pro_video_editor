@@ -1,3 +1,6 @@
+## 0.0.6
+- **FIX**(crop): Ensure crop dimensions are even to avoid libx264 errors
+
 ## 0.0.5
 - **FEAT**: Add support for color 4x5 matrices
 

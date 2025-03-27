@@ -35,7 +35,7 @@ class _VideoExportPageState extends State<VideoExportPage> {
   Duration _generationTime = Duration.zero;
 
   double _outputVideoRatio = 1280 / 720;
-  final double _blur = 10;
+  final double _blur = 0;
   final _transform = const ExportTransform();
   final List<List<double>> _colorFilters = [];
   // kBasicFilterMatrix   kComplexFilterMatrix
@@ -84,7 +84,8 @@ class _VideoExportPageState extends State<VideoExportPage> {
       videoDuration: infos.duration,
       devicePixelRatio: MediaQuery.devicePixelRatioOf(context),
       // startTime: const Duration(seconds: 15),
-      endTime: const Duration(seconds: 3),
+      // endTime: const Duration(seconds: 25),
+      endTime: const Duration(seconds: 2),
       encodingPreset: EncodingPreset.ultrafast,
       // outputQuality: OutputQuality.lossless,
       blur: _blur,
