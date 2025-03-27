@@ -82,6 +82,7 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
         'startTime': value.startTime?.inSeconds,
         'endTime': value.endTime?.inSeconds,
         'filters': value.complexFilter,
+        'colorMatrices': value.colorFilters,
       },
     );
 

@@ -1,5 +1,9 @@
+// ignore_for_file: lines_longer_than_80_chars
+
+import 'dart:math';
+
 import 'package:flutter/services.dart';
-import 'package:pro_video_editor/core/models/video/export_transform_model.dart';
+import '/core/models/video/export_transform_model.dart';
 
 /// A model that holds all required data for exporting a video.
 ///
@@ -172,87 +176,12 @@ class ExportVideoModel {
     return result;
   }
 
-  String get _colorFilterMatrix {
-    List<double> multiplyColorMatrices(List<double> a, List<double> b) {
-      List<double> result = List.filled(20, 0.0);
-      for (int row = 0; row < 4; row++) {
-        for (int col = 0; col < 5; col++) {
-          result[row * 5 + col] = a[row * 5 + 0] * b[col + 0] +
-              a[row * 5 + 1] * b[col + 5] +
-              a[row * 5 + 2] * b[col + 10] +
-              a[row * 5 + 3] * b[col + 15] +
-              (col == 4 ? a[row * 5 + 4] : 0);
-        }
-      }
-      return result;
-    }
-
-    final matrices = colorFilters;
-    if (matrices.any((m) => m.length != 20)) {
-      throw ArgumentError('Each matrix must have exactly 20 elements (4x5).');
-    }
-
-    // Identity matrix
-    List<double> result = [
-      1,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
-    ];
-
-    // Multiply matrices in reverse application order
-    for (final matrix in matrices.reversed) {
-      result = multiplyColorMatrices(matrix, result);
-    }
-
-    // Extract matrix components (3x3 color transformation)
-    final colorMixer = <String>[
-      'rr=${result[0]}',
-      'rg=${result[1]}',
-      'rb=${result[2]}',
-      'gr=${result[5]}',
-      'gg=${result[6]}',
-      'gb=${result[7]}',
-      'br=${result[10]}',
-      'bg=${result[11]}',
-      'bb=${result[12]}',
-    ];
-
-    // Format biases for LUT (4th column values)
-    String formatBias(double bias) => bias >= 0 ? '+$bias' : '$bias';
-    final rBias = formatBias(result[4]);
-    final gBias = formatBias(result[9]);
-    final bBias = formatBias(result[14]);
-
-    // Chain filters correctly: colorchannelmixer -> lut
-    return 'colorchannelmixer=${colorMixer.join(':')},'
-        'lut=r=clip(val$rBias\\,0\\,255):'
-        'g=clip(val$gBias\\,0\\,255):'
-        'b=clip(val$bBias\\,0\\,255)';
-  }
-
   /// Returns a combined FFmpeg complex filter string based on active filters.
   ///
   /// Includes blur and crop filters if defined. Filters are joined with a comma
   /// and empty filters are excluded.
   String get complexFilter {
-    var filters = [_blurFilter, _cropFilter, _colorFilterMatrix, customFilter]
+    var filters = [_blurFilter, _cropFilter, customFilter]
       ..removeWhere((item) => item.isEmpty);
 
     return filters.join(',');

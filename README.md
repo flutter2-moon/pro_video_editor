@@ -7,12 +7,12 @@
 
 | Platform       | `getVideoInformation`  | `createVideoThumbnails`   | `parseWithLayers`  | `parseWithBlur`   | `parseWithTransform`    | `parseWithFilters`  | `parseWithCensorLayers` |
 |----------------|------------------------|---------------------------|--------------------|-------------------|-------------------------|---------------------|-------------------------|
-| Android        | ✅                     | ✅                       | ✅                 | ✅               | ✅                     | 🧪                  | ❌                      |
+| Android        | ✅                     | ✅                       | ✅                 | ✅               | ✅                     | ✅                  | ❌                      |
 | iOS            | ✅                     | ✅                       | ⚠️                 | ⚠️               | ⚠️                     | ⚠️                  | ❌                      |
 | macOS          | ✅                     | ✅                       | ⚠️                 | ⚠️               | ⚠️                     | ⚠️                  | ❌                      |
 | Windows        | ✅                     | ✅                       | ❌                 | ❌               | ❌                     | ❌                  | ❌                      |
 | Linux          | ⚠️                     | ⚠️                       | ❌                 | ❌               | ❌                     | ❌                  | ❌                      |
-| Web            | ✅                     | ✅                       | ❌                 | ❌               | ❌                     | ❌                  | ❌                      |
+| Web            | ✅                     | ✅                       | 🚫                 | 🚫               | 🚫                     | 🚫                  | 🚫                      |
 
 
 
@@ -21,3 +21,4 @@
 - 🧪 Supported but visual output differs from Flutter
 - ⚠️ Supported but not tested
 - ❌ Not supported but planned
+- 🚫 Not supported and not planned

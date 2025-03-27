@@ -7,6 +7,7 @@ import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:pro_video_editor/pro_video_editor.dart';
 
+import '../../core/constants/example_filters.dart';
 import '/shared/utils/bytes_formatter.dart';
 import '/shared/widgets/filter_generator.dart';
 
@@ -34,11 +35,11 @@ class _VideoExportPageState extends State<VideoExportPage> {
 
   Duration _generationTime = Duration.zero;
 
-  final double _blur = 0;
+  double _outputVideoRatio = 1280 / 720;
+  final double _blur = 10;
   final _transform = const ExportTransform();
-  final List<List<double>> _colorFilters = [
-    // ...PresetFilters.xProII.filters,
-  ];
+  final List<List<double>> _colorFilters = [];
+  // kBasicFilterMatrix   kComplexFilterMatrix
 
   @override
   void initState() {
@@ -84,7 +85,7 @@ class _VideoExportPageState extends State<VideoExportPage> {
       videoDuration: infos.duration,
       devicePixelRatio: MediaQuery.devicePixelRatioOf(context),
       // startTime: const Duration(seconds: 15),
-      // endTime: const Duration(seconds: 20)
+      endTime: const Duration(seconds: 3),
       encodingPreset: EncodingPreset.ultrafast,
       // outputQuality: OutputQuality.lossless,
       blur: _blur,
@@ -95,6 +96,12 @@ class _VideoExportPageState extends State<VideoExportPage> {
     final result = await VideoUtilsService.instance.exportVideo(data);
 
     _generationTime = sp.elapsed;
+
+    _outputVideoRatio = (await VideoUtilsService.instance
+            .getVideoInformation(EditorVideo(byteArray: result)))
+        .resolution
+        .aspectRatio;
+
     await _playerPreview.open(await Media.memory(result));
     await _playerPreview.play();
 
@@ -109,6 +116,7 @@ class _VideoExportPageState extends State<VideoExportPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Video Export')),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
         child: Column(
           spacing: 16,
           children: [
@@ -130,13 +138,15 @@ class _VideoExportPageState extends State<VideoExportPage> {
             filters: _colorFilters,
             child: Video(controller: _controllerContent),
           ),
-          ClipRect(
-            clipBehavior: Clip.hardEdge,
-            child: BackdropFilter(
-              filter: ui.ImageFilter.blur(sigmaX: _blur, sigmaY: _blur),
-              child: Container(
-                alignment: Alignment.center,
-                color: Colors.white.withValues(alpha: 0.0),
+          IgnorePointer(
+            child: ClipRect(
+              clipBehavior: Clip.hardEdge,
+              child: BackdropFilter(
+                filter: ui.ImageFilter.blur(sigmaX: _blur, sigmaY: _blur),
+                child: Container(
+                  alignment: Alignment.center,
+                  color: Colors.white.withValues(alpha: 0.0),
+                ),
               ),
             ),
           ),
@@ -191,7 +201,11 @@ class _VideoExportPageState extends State<VideoExportPage> {
               return Column(
                 spacing: 7,
                 children: [
-                  CircularProgressIndicator(value: animatedValue),
+                  CircularProgressIndicator(
+                    value: animatedValue,
+                    // ignore: deprecated_member_use
+                    year2023: false,
+                  ),
                   Text('${(animatedValue * 100).toStringAsFixed(1)} / 100'),
                 ],
               );
@@ -213,7 +227,7 @@ class _VideoExportPageState extends State<VideoExportPage> {
           ? []
           : [
               AspectRatio(
-                aspectRatio: 1280 / 720,
+                aspectRatio: _outputVideoRatio,
                 child: Video(controller: _controllerPreview),
               ),
               Padding(
