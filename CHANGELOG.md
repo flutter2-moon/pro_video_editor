@@ -1,3 +1,6 @@
+## 0.0.5
+- **FEAT**: Add support for color 4x5 matrices
+
 ## 0.0.4
 - **FEAT**: Add video parser functions for android
 
