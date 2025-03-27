@@ -129,36 +129,32 @@ class ExportVideoModel {
   }
 
   String get _cropFilter {
-    // Return if there are no transformations
     if (transform == const ExportTransform()) return '';
 
-    int? width = transform.width;
-    int? height = transform.height;
-    int rotateTurns = transform.rotateTurns;
-    String? x = transform.x;
-    String? y = transform.y;
-    bool flipX = transform.flipX;
-    bool flipY = transform.flipY;
+    final rotateTurns = transform.rotateTurns % 4;
+    final isSwapped = rotateTurns % 2 != 0;
 
-    final widthExpr = width?.toString() ?? 'in_w';
-    final heightExpr = height?.toString() ?? 'in_h';
+    final width = transform.width;
+    final height = transform.height;
+    final x = transform.x;
+    final y = transform.y;
+    final flipX = transform.flipX;
+    final flipY = transform.flipY;
 
-    final xExpr = x ?? '(in_w-$widthExpr)/2';
-    final yExpr = y ?? '(in_h-$heightExpr)/2';
+    final rotate = switch (rotateTurns) {
+      1 => 'transpose=1',
+      2 => 'transpose=1,transpose=1',
+      3 => 'transpose=2',
+      _ => '',
+    };
 
-    final crop = 'crop=$widthExpr:$heightExpr:$xExpr:$yExpr';
-
-    String rotate = '';
-    switch (rotateTurns % 4) {
-      case 1:
-        rotate = 'rotate=PI/2';
-        break;
-      case 2:
-        rotate = 'rotate=PI';
-        break;
-      case 3:
-        rotate = 'rotate=3*PI/2';
-        break;
+    String? crop;
+    if (width != null && height != null) {
+      final cropWidth = isSwapped ? height.toString() : width.toString();
+      final cropHeight = isSwapped ? width.toString() : height.toString();
+      final xExpr = x ?? '(in_w-$cropWidth)/2';
+      final yExpr = y ?? '(in_h-$cropHeight)/2';
+      crop = 'crop=$cropWidth:$cropHeight:$xExpr:$yExpr';
     }
 
     final flips = <String>[
@@ -166,13 +162,14 @@ class ExportVideoModel {
       if (flipY) 'vflip',
     ];
 
-    final allFilters = <String>[
-      crop,
+    final filters = <String>[
       if (rotate.isNotEmpty) rotate,
+      if (crop != null) crop,
       ...flips,
     ];
 
-    return allFilters.join(',');
+    final result = filters.join(',');
+    return result;
   }
 
   String get _colorFilterMatrix {
