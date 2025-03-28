@@ -1,3 +1,6 @@
+## 0.0.9
+- **REFACTOR**(encoding): Export encoding models for easier import from main package
+
 ## 0.0.8
 - **FEAT**(audio): Add enable audio parameter
 

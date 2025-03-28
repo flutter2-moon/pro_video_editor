@@ -92,6 +92,14 @@ class _VideoExportPageState extends State<VideoExportPage> {
       blur: _blur,
       transform: _transform,
       colorFilters: _colorFilters,
+      // encoding: const VideoEncoding(
+      //   aviEncodingConfig: AviEncodingConfig(),
+      //   gifEncodingConfig: GifEncodingConfig(),
+      //   mkvEncodingConfig: MkvEncodingConfig(),
+      //   movEncodingConfig: MovEncodingConfig(),
+      //   mp4EncodingConfig: Mp4EncodingConfig(),
+      //   webMEncodingConfig: WebMEncodingConfig(),
+      // ),
     );
 
     final result = await VideoUtilsService.instance.exportVideo(data);
