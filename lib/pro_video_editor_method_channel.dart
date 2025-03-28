@@ -70,15 +70,20 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
 
   @override
   Future<Uint8List> exportVideo(ExportVideoModel value) async {
+    var format = lookupMimeType('', headerBytes: value.videoBytes);
+    String inputFormat = 'mp4';
+    List<String>? sp = format?.split('/');
+    if (sp?.length == 1) inputFormat = sp![1];
+
     final Uint8List? result = await methodChannel.invokeMethod<Uint8List>(
       'exportVideo',
       {
+        'codecArgs': value.encoding.toFFmpegArgs(value.outputFormat),
         'videoBytes': value.videoBytes,
         'imageBytes': value.imageBytes,
-        'outputFormat': value.outputFormat.name,
         'videoDuration': value.videoDuration.inMilliseconds,
-        'constantRateFactor': value.constantRateFactor,
-        'encodingPreset': value.encodingPreset.name,
+        'inputFormat': inputFormat,
+        'outputFormat': value.outputFormat.name,
         'startTime': value.startTime?.inSeconds,
         'endTime': value.endTime?.inSeconds,
         'filters': value.complexFilter,

@@ -55,28 +55,28 @@ public class ProVideoEditorPlugin: NSObject, FlutterPlugin {
         guard let args = call.arguments as? [String: Any],
               let videoData = args["videoBytes"] as? FlutterStandardTypedData,
               let imageData = args["imageBytes"] as? FlutterStandardTypedData,
-              let outputFormat = args["outputFormat"] as? String,
-              let preset = args["encodingPreset"] as? String,
               let videoDuration = args["videoDuration"] as? Int,
-              let crf = args["constantRateFactor"] as? Int else {
+              let codecArgs = args["codecArgs"] as? [String] else {
             result(FlutterError(code: "INVALID_ARGUMENTS", message: "Missing parameters", details: nil))
             return
         }
 
         let startTime = args["startTime"] as? Int
         let endTime = args["endTime"] as? Int
+        let filters = args["inputFormat"] as? String ?? "mp4"
+        let filters = args["outputFormat"] as? String ?? "mp4"
         let filters = args["filters"] as? String ?? ""
         let colorMatrices = args["colorMatrices"] as? [[Double]]
 
         ExportVideo.generate(
             videoBytes: videoData.data,
             imageBytes: imageData.data,
-            outputFormat: outputFormat,
-            preset: preset,
+            codecArgs = codecArgs,
+            inputFormat = inputFormat,
+            outputFormat = outputFormat,
             startTime: startTime,
             endTime: endTime,
             videoDuration: videoDuration,
-            constantRateFactor: crf,
             filters: filters,
             colorMatrices: colorMatrices,
             onSuccess: { outputPath in

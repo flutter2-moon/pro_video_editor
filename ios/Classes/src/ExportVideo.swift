@@ -63,12 +63,12 @@ class ExportVideo {
     static func generate(
         videoBytes: Data,
         imageBytes: Data,
+        codecArgs: [String],
+        inputFormat: String,
         outputFormat: String,
-        preset: String,
         startTime: Int?,
         endTime: Int?,
         videoDuration: Int,
-        constantRateFactor: Int,
         filters: String,
         colorMatrices: [[Double]]?,
         onSuccess: @escaping (String) -> Void,
@@ -79,7 +79,7 @@ class ExportVideo {
             do {
                 let tempDir = FileManager.default.temporaryDirectory
 
-                let videoURL = tempDir.appendingPathComponent("input_video.mp4")
+                let videoURL = tempDir.appendingPathComponent("input_video.\(inputFormat)")
                 let imageURL = tempDir.appendingPathComponent("overlay_image.png")
                 let outputURL = tempDir.appendingPathComponent("output_video.\(outputFormat)")
 
@@ -121,13 +121,13 @@ class ExportVideo {
                     "-i", videoURL.path,
                     "-i", imageURL.path,
                     "-filter_complex", filterGraph,
-                    "-c:v", "libx264",
-                    "-preset", preset,
-                    "-crf", "\(constantRateFactor)",
-                    "-pix_fmt", "yuv420p",
-                    "-c:a", "copy",
-                    outputURL.path
                 ]
+
+                // Append codec arguments from Dart or predefined
+                ffmpegCommand += codecArgs
+                
+                // Append output file path
+                ffmpegCommand.append(outputFile.path)
 
                 let command = ffmpegCommand.joined(separator: " ")
                 print("FFmpeg command: \(command)")

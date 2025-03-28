@@ -1,5 +1,7 @@
 import 'package:flutter/services.dart';
+
 import '/core/models/video/export_transform_model.dart';
+import 'encoding/video_encoding.dart';
 
 /// A model that holds all required data for exporting a video.
 ///
@@ -25,6 +27,7 @@ class ExportVideoModel {
     this.transform = const ExportTransform(),
     this.colorFilters = const [],
     this.customFilter = '',
+    this.encoding = const VideoEncoding(),
   })  : assert(
           startTime == null || endTime == null || startTime < endTime,
           'startTime must be before endTime',
@@ -88,6 +91,9 @@ class ExportVideoModel {
   /// This allows advanced users to inject their own filter logic in addition to
   /// built-in effects like blur or crop.
   final String customFilter;
+
+  /// The encoding settings used for exporting the video.
+  final VideoEncoding encoding;
 
   /// The FFmpeg constant rate factor (CRF) for the selected [outputQuality].
   ///

@@ -76,12 +76,12 @@ class ExportVideo(private val context: Context) {
     fun generate(
         videoBytes: ByteArray,
         imageBytes: ByteArray,
+        codecArgs: List<String>,
+        inputFormat: String,
         outputFormat: String,
-        preset: String,
         startTime: Int?,
         endTime: Int?,
         videoDuration: Int,
-        constantRateFactor: Int,
         filters: String,
         colorMatrices: List<List<Double>>?,
         onSuccess: (String) -> Unit,
@@ -90,7 +90,7 @@ class ExportVideo(private val context: Context) {
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val videoFile = File.createTempFile("input_video", ".mp4", context.cacheDir)
+                val videoFile = File.createTempFile("input_video", ".$inputFormat", context.cacheDir)
                 val imageFile = File.createTempFile("overlay_image", ".png", context.cacheDir)
                 val outputFile =
                     File.createTempFile("output_video", ".$outputFormat", context.cacheDir)
@@ -143,35 +143,17 @@ class ExportVideo(private val context: Context) {
                     listOf(
                         // Overwrite output file if it exists
                         "-y",
-
                         // Input 0: the main video
                         "-i", videoFile.absolutePath,
-
                         // Input 1: the overlay image (e.g. a transparent PNG)
                         "-i", imageFile.absolutePath,
-
                         // Apply filter chain
                         "-filter_complex", fullFilter,
-
-                        // Set the video codec to libx264 (H.264)
-                        "-c:v", "libx264",
-
-                        // Set encoding preset (affects speed vs. compression ratio)
-                        "-preset", preset,
-
-                        // Set quality using CRF (lower is better quality, 0 = lossless)
-                        "-crf", constantRateFactor.toString(),
-
-                        // Set pixel format for broad compatibility (especially for Android/iOS playback)
-                        "-pix_fmt", "yuv420p",
-
-                        // Copy the original audio stream without re-encoding
-                        "-c:a", "copy",
-
-                        // Output file path
+                    ) + codecArgs + listOf(
                         outputFile.absolutePath
                     )
                 )
+
                 val commandString = ffmpegCommand.joinToString(" ")
 
                 Log.d("ExportVideo", "Running FFmpeg command: $commandString")

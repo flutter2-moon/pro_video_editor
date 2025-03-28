@@ -105,17 +105,16 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
             "exportVideo" -> {
                 val videoBytes = call.argument<ByteArray>("videoBytes")
                 val imageBytes = call.argument<ByteArray>("imageBytes")
-                val outputFormat = call.argument<String>("outputFormat") ?: "mp4"
-                val preset = call.argument<String>("encodingPreset")
                 val videoDuration = call.argument<Int>("videoDuration")
                 val startTime = call.argument<Int>("startTime")
                 val endTime = call.argument<Int>("endTime")
-                val constantRateFactor = call.argument<Int>("constantRateFactor")
                 val filters = call.argument<String>("filters") ?: ""
                 val colorMatrices = call.argument<List<List<Double>>>("colorMatrices")
+                val inputFormat = call.argument<String>("inputFormat") ?: "mp4"
+                val outputFormat = call.argument<String>("outputFormat") ?: "mp4"
+                val codecArgs = call.argument<List<String>>("codecArgs")
                 
-                if (videoBytes == null || imageBytes == null || videoDuration == null || 
-                    preset == null || constantRateFactor == null) {
+                if (videoBytes == null || imageBytes == null || videoDuration == null || codecArgs == null) {
                     result.error(
                         "INVALID_ARGUMENTS",
                         "Missing parameters",
@@ -126,12 +125,12 @@ class ProVideoEditorPlugin : FlutterPlugin, MethodCallHandler {
 
                 exportVideo.generate(videoBytes = videoBytes,
                     imageBytes = imageBytes,
+                    codecArgs = codecArgs,
+                    inputFormat = inputFormat,
                     outputFormat = outputFormat,
-                    preset = preset,
                     startTime = startTime,
                     endTime = endTime,
                     videoDuration = videoDuration,
-                    constantRateFactor = constantRateFactor,
                     filters = filters,
                     colorMatrices = colorMatrices,
                     onSuccess = { outputPath ->

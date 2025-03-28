@@ -34,11 +34,12 @@ class _VideoExportPageState extends State<VideoExportPage> {
 
   Duration _generationTime = Duration.zero;
 
-  double _outputVideoRatio = 1280 / 720;
   final double _blur = 0;
   final _transform = const ExportTransform();
   final List<List<double>> _colorFilters = [];
   // kBasicFilterMatrix   kComplexFilterMatrix
+
+  VideoInformation? _outputVideoInformation;
 
   @override
   void initState() {
@@ -85,7 +86,6 @@ class _VideoExportPageState extends State<VideoExportPage> {
       devicePixelRatio: MediaQuery.devicePixelRatioOf(context),
       // startTime: const Duration(seconds: 15),
       // endTime: const Duration(seconds: 25),
-      endTime: const Duration(seconds: 2),
       encodingPreset: EncodingPreset.ultrafast,
       // outputQuality: OutputQuality.lossless,
       blur: _blur,
@@ -97,10 +97,8 @@ class _VideoExportPageState extends State<VideoExportPage> {
 
     _generationTime = sp.elapsed;
 
-    _outputVideoRatio = (await VideoUtilsService.instance
-            .getVideoInformation(EditorVideo(byteArray: result)))
-        .resolution
-        .aspectRatio;
+    _outputVideoInformation = (await VideoUtilsService.instance
+        .getVideoInformation(EditorVideo(byteArray: result)));
 
     await _playerPreview.open(await Media.memory(result));
     await _playerPreview.play();
@@ -227,7 +225,8 @@ class _VideoExportPageState extends State<VideoExportPage> {
           ? []
           : [
               AspectRatio(
-                aspectRatio: _outputVideoRatio,
+                aspectRatio: _outputVideoInformation?.resolution.aspectRatio ??
+                    1280 / 720,
                 child: Video(controller: _controllerPreview),
               ),
               Padding(
