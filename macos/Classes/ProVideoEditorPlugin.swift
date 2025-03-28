@@ -1,7 +1,7 @@
 import Cocoa
 import FlutterMacOS
 
-public class ProVideoEditorPlugin: NSObject, FlutterPlugin {
+public class ProVideoEditorPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
   var eventSink: FlutterEventSink?
 
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -63,17 +63,17 @@ public class ProVideoEditorPlugin: NSObject, FlutterPlugin {
 
         let startTime = args["startTime"] as? Int
         let endTime = args["endTime"] as? Int
-        let filters = args["inputFormat"] as? String ?? "mp4"
-        let filters = args["outputFormat"] as? String ?? "mp4"
+        let inputFormat = args["inputFormat"] as? String ?? "mp4"
+        let outputFormat = args["outputFormat"] as? String ?? "mp4"
         let filters = args["filters"] as? String ?? ""
         let colorMatrices = args["colorMatrices"] as? [[Double]]
 
         ExportVideo.generate(
             videoBytes: videoData.data,
             imageBytes: imageData.data,
-            codecArgs = codecArgs,
-            inputFormat = inputFormat,
-            outputFormat = outputFormat,
+            codecArgs: codecArgs,
+            inputFormat: inputFormat,
+            outputFormat: outputFormat,
             startTime: startTime,
             endTime: endTime,
             videoDuration: videoDuration,
@@ -99,14 +99,12 @@ public class ProVideoEditorPlugin: NSObject, FlutterPlugin {
         }
     }
 
-    // MARK: - FlutterStreamHandler
-
-    public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+    @objc public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
         self.eventSink = events
         return nil
     }
 
-    public func onCancel(withArguments arguments: Any?) -> FlutterError? {
+    @objc public func onCancel(withArguments arguments: Any?) -> FlutterError? {
         self.eventSink = nil
         return nil
     }

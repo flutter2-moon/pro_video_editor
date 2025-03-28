@@ -127,7 +127,7 @@ class ExportVideo {
                 ffmpegCommand += codecArgs
                 
                 // Append output file path
-                ffmpegCommand.append(outputFile.path)
+                ffmpegCommand.append(outputURL.path)
 
                 let command = ffmpegCommand.joined(separator: " ")
                 print("FFmpeg command: \(command)")
