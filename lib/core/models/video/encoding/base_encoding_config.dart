@@ -13,5 +13,5 @@ abstract class VideoEncodingConfig {
 
   /// Converts the encoding configuration into a list of FFmpeg command-line
   /// arguments, including any [customArgs] at the end.
-  List<String> toFFmpegArgs();
+  List<String> toFFmpegArgs(bool enableAudio);
 }

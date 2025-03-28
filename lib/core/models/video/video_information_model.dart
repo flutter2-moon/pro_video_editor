@@ -36,4 +36,38 @@ class VideoInformation {
 
   /// The format of the video file, such as "mp4" or "avi".
   final String extension;
+
+  /// Returns a copy of this config with the given fields replaced.
+  VideoInformation copyWith({
+    int? fileSize,
+    Size? resolution,
+    Duration? duration,
+    String? extension,
+  }) {
+    return VideoInformation(
+      fileSize: fileSize ?? this.fileSize,
+      resolution: resolution ?? this.resolution,
+      duration: duration ?? this.duration,
+      extension: extension ?? this.extension,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is VideoInformation &&
+        other.fileSize == fileSize &&
+        other.resolution == resolution &&
+        other.duration == duration &&
+        other.extension == extension;
+  }
+
+  @override
+  int get hashCode {
+    return fileSize.hashCode ^
+        resolution.hashCode ^
+        duration.hashCode ^
+        extension.hashCode;
+  }
 }

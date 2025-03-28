@@ -12,7 +12,6 @@ class MovEncodingConfig extends VideoEncodingConfig {
     this.preset = 'fast',
     this.pixelFormat = 'yuv420p',
     this.audioCodec = 'aac',
-    super.customArgs,
   });
 
   /// Constant Rate Factor (CRF) for controlling video quality.
@@ -32,7 +31,7 @@ class MovEncodingConfig extends VideoEncodingConfig {
   final String audioCodec;
 
   @override
-  List<String> toFFmpegArgs() {
+  List<String> toFFmpegArgs(bool enableAudio) {
     return [
       /// Set video codec to H.264 (widely supported)
       '-c:v', 'libx264',
@@ -46,9 +45,47 @@ class MovEncodingConfig extends VideoEncodingConfig {
       /// Pixel format
       '-pix_fmt', pixelFormat,
 
-      /// Audio encoding
-      '-c:a', audioCodec,
+      /// Audio handling
+      if (enableAudio) ...[
+        '-c:a', audioCodec, // e.g., 'aac'
+      ] else ...[
+        '-an', // disable audio
+      ],
       ...customArgs,
     ];
+  }
+
+  /// Returns a copy of this config with the given fields replaced.
+  MovEncodingConfig copyWith({
+    int? crf,
+    String? preset,
+    String? pixelFormat,
+    String? audioCodec,
+  }) {
+    return MovEncodingConfig(
+      crf: crf ?? this.crf,
+      preset: preset ?? this.preset,
+      pixelFormat: pixelFormat ?? this.pixelFormat,
+      audioCodec: audioCodec ?? this.audioCodec,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is MovEncodingConfig &&
+        other.crf == crf &&
+        other.preset == preset &&
+        other.pixelFormat == pixelFormat &&
+        other.audioCodec == audioCodec;
+  }
+
+  @override
+  int get hashCode {
+    return crf.hashCode ^
+        preset.hashCode ^
+        pixelFormat.hashCode ^
+        audioCodec.hashCode;
   }
 }

@@ -78,7 +78,10 @@ class MethodChannelProVideoEditor extends ProVideoEditorPlatform {
     final Uint8List? result = await methodChannel.invokeMethod<Uint8List>(
       'exportVideo',
       {
-        'codecArgs': value.encoding.toFFmpegArgs(value.outputFormat),
+        'codecArgs': value.encoding.toFFmpegArgs(
+          outputFormat: value.outputFormat,
+          enableAudio: value.enableAudio,
+        ),
         'videoBytes': value.videoBytes,
         'imageBytes': value.imageBytes,
         'videoDuration': value.videoDuration.inMilliseconds,

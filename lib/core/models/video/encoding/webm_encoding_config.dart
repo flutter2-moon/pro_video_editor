@@ -13,7 +13,6 @@ class WebMEncodingConfig extends VideoEncodingConfig {
     this.cpuUsed = 5,
     this.deadline = 'realtime',
     this.threads = 4,
-    super.customArgs,
   });
 
   /// The video codec to use (default: `libvpx-vp9`).
@@ -37,7 +36,7 @@ class WebMEncodingConfig extends VideoEncodingConfig {
 
   /// Converts the configuration into a list of FFmpeg command-line arguments.
   @override
-  List<String> toFFmpegArgs() {
+  List<String> toFFmpegArgs(bool enableAudio) {
     return [
       /// Set video codec to VP9 for WebM
       '-c:v', videoCodec,
@@ -57,9 +56,55 @@ class WebMEncodingConfig extends VideoEncodingConfig {
       /// Deadline
       '-deadline', deadline,
 
-      /// Audio codec
-      '-c:a', audioCodec,
+      /// Audio handling
+      if (enableAudio) ...[
+        '-c:a', audioCodec, // e.g., 'aac'
+      ] else ...[
+        '-an', // disable audio
+      ],
       ...customArgs,
     ];
+  }
+
+  /// Returns a copy of this config with the given fields replaced.
+  WebMEncodingConfig copyWith({
+    String? videoCodec,
+    String? audioCodec,
+    String? bitrate,
+    int? cpuUsed,
+    String? deadline,
+    int? threads,
+  }) {
+    return WebMEncodingConfig(
+      videoCodec: videoCodec ?? this.videoCodec,
+      audioCodec: audioCodec ?? this.audioCodec,
+      bitrate: bitrate ?? this.bitrate,
+      cpuUsed: cpuUsed ?? this.cpuUsed,
+      deadline: deadline ?? this.deadline,
+      threads: threads ?? this.threads,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is WebMEncodingConfig &&
+        other.videoCodec == videoCodec &&
+        other.audioCodec == audioCodec &&
+        other.bitrate == bitrate &&
+        other.cpuUsed == cpuUsed &&
+        other.deadline == deadline &&
+        other.threads == threads;
+  }
+
+  @override
+  int get hashCode {
+    return videoCodec.hashCode ^
+        audioCodec.hashCode ^
+        bitrate.hashCode ^
+        cpuUsed.hashCode ^
+        deadline.hashCode ^
+        threads.hashCode;
   }
 }
