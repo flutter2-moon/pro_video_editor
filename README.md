@@ -8,8 +8,8 @@
 | Platform       | `getVideoInformation`  | `createVideoThumbnails`   | `parseWithLayers`  | `parseWithBlur`   | `parseWithTransform`    | `parseWithFilters`  | `parseWithCensorLayers` |
 |----------------|------------------------|---------------------------|--------------------|-------------------|-------------------------|---------------------|-------------------------|
 | Android        | ✅                     | ✅                       | ✅                 | ✅               | ✅                     | ✅                  | ❌                      |
-| iOS            | ✅                     | ✅                       | ⚠️                 | ⚠️               | ⚠️                     | ⚠️                  | ❌                      |
-| macOS          | ✅                     | ✅                       | ⚠️                 | ⚠️               | ⚠️                     | ⚠️                  | ❌                      |
+| iOS            | ✅                     | ✅                       | ✅                 | ✅               | ✅                     | ✅                  | ❌                      |
+| macOS          | ✅                     | ✅                       | ✅                 | ✅               | ✅                     | ✅                  | ❌                      |
 | Windows        | ✅                     | ✅                       | ❌                 | ❌               | ❌                     | ❌                  | ❌                      |
 | Linux          | ⚠️                     | ⚠️                       | ❌                 | ❌               | ❌                     | ❌                  | ❌                      |
 | Web            | ✅                     | ✅                       | 🚫                 | 🚫               | 🚫                     | 🚫                  | 🚫                      |
@@ -22,3 +22,16 @@
 - ⚠️ Supported but not tested
 - ❌ Not supported but planned
 - 🚫 Not supported and not planned
+
+<br/>
+
+### ❗ Important Note
+
+This plugin uses [FFmpegKit](https://github.com/arthenica/ffmpeg-kit), specifically the `ffmpeg-kit-full-gpl` build, which includes components licensed under the **GNU General Public License (GPL v3)**.
+
+By using this plugin, you agree to comply with the terms of the GPL license.
+
+> [Read more about GPL licensing here](https://www.gnu.org/licenses/gpl-3.0.en.html)
+
+⚠️ **Future Licensing Plan**:  
+To allow more flexible and permissive use (including closed-source commercial apps), a future version of this plugin will switch to an alternative solution using **LGPL-compliant FFmpeg builds** or **native platform APIs** (such as `MediaCodec`, `AVFoundation`, or `Media Foundation`) to avoid GPL restrictions entirely.
