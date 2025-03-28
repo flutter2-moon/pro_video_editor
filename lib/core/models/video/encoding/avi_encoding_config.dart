@@ -10,7 +10,6 @@ class AviEncodingConfig extends VideoEncodingConfig {
     this.videoCodec = 'mpeg4',
     this.qualityScale = 5,
     this.audioCodec = 'mp3',
-    super.customArgs,
   });
 
   /// The video codec to use (default: `mpeg4`).
@@ -24,7 +23,7 @@ class AviEncodingConfig extends VideoEncodingConfig {
   final String audioCodec;
 
   @override
-  List<String> toFFmpegArgs() {
+  List<String> toFFmpegArgs(bool enableAudio) {
     return [
       ///
       '-c:v', videoCodec,
@@ -32,9 +31,41 @@ class AviEncodingConfig extends VideoEncodingConfig {
       ///
       '-qscale:v', '$qualityScale',
 
-      ///
-      '-c:a', audioCodec,
+      /// Audio settings
+      if (enableAudio) ...[
+        // e.g., 'aac'
+        '-c:a', audioCodec,
+      ] else ...[
+        '-an', // disable audio
+      ],
       ...customArgs,
     ];
   }
+
+  /// Returns a copy of this config with the given fields replaced.
+  AviEncodingConfig copyWith({
+    String? videoCodec,
+    int? qualityScale,
+    String? audioCodec,
+  }) {
+    return AviEncodingConfig(
+      videoCodec: videoCodec ?? this.videoCodec,
+      qualityScale: qualityScale ?? this.qualityScale,
+      audioCodec: audioCodec ?? this.audioCodec,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is AviEncodingConfig &&
+        other.videoCodec == videoCodec &&
+        other.qualityScale == qualityScale &&
+        other.audioCodec == audioCodec;
+  }
+
+  @override
+  int get hashCode =>
+      videoCodec.hashCode ^ qualityScale.hashCode ^ audioCodec.hashCode;
 }

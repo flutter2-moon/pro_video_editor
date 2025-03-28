@@ -93,6 +93,21 @@ class EditorVideo {
     }
   }
 
+  /// Returns a copy of this config with the given fields replaced.
+  EditorVideo copyWith({
+    Uint8List? byteArray,
+    File? file,
+    String? networkUrl,
+    String? assetPath,
+  }) {
+    return EditorVideo(
+      byteArray: byteArray ?? this.byteArray,
+      file: file ?? this.file,
+      networkUrl: networkUrl ?? this.networkUrl,
+      assetPath: assetPath ?? this.assetPath,
+    );
+  }
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;

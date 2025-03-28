@@ -1,3 +1,9 @@
+## 0.0.8
+- **FEAT**(audio): Add enable audio parameter
+
+## 0.0.7
+- **FEAT**(iOS, macOS): Add video generation support for macOS and iOS
+
 ## 0.0.6
 - **FIX**(crop): Ensure crop dimensions are even to avoid libx264 errors
 

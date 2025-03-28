@@ -40,6 +40,27 @@ class ExportTransform {
   /// Whether to flip vertically.
   final bool flipY;
 
+  /// Returns a copy of this config with the given fields replaced.
+  ExportTransform copyWith({
+    int? width,
+    int? height,
+    int? rotateTurns,
+    String? x,
+    String? y,
+    bool? flipX,
+    bool? flipY,
+  }) {
+    return ExportTransform(
+      width: width ?? this.width,
+      height: height ?? this.height,
+      rotateTurns: rotateTurns ?? this.rotateTurns,
+      x: x ?? this.x,
+      y: y ?? this.y,
+      flipX: flipX ?? this.flipX,
+      flipY: flipY ?? this.flipY,
+    );
+  }
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;

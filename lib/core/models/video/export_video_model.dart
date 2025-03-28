@@ -1,4 +1,4 @@
-import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 
 import '/core/models/video/export_transform_model.dart';
 import 'encoding/video_encoding.dart';
@@ -24,6 +24,7 @@ class ExportVideoModel {
     this.startTime,
     this.endTime,
     this.blur = 0,
+    this.enableAudio = true,
     this.transform = const ExportTransform(),
     this.colorFilters = const [],
     this.customFilter = '',
@@ -74,6 +75,11 @@ class ExportVideoModel {
   ///
   /// Higher values result in a stronger blur effect.
   final double blur;
+
+  /// Whether to include audio in the exported video.
+  ///
+  /// **Default**: `true`
+  final bool enableAudio;
 
   /// The device pixel ratio used for rendering accuracy and scale adjustments.
   ///
@@ -194,6 +200,84 @@ class ExportVideoModel {
       ..removeWhere((item) => item.isEmpty);
 
     return filters.join(',');
+  }
+
+  /// Returns a copy of this config with the given fields replaced.
+  ExportVideoModel copyWith({
+    VideoOutputFormat? outputFormat,
+    Uint8List? videoBytes,
+    Uint8List? imageBytes,
+    Duration? videoDuration,
+    OutputQuality? outputQuality,
+    EncodingPreset? encodingPreset,
+    Duration? startTime,
+    Duration? endTime,
+    List<List<double>>? colorFilters,
+    double? blur,
+    bool? enableAudio,
+    double? devicePixelRatio,
+    ExportTransform? transform,
+    String? customFilter,
+    VideoEncoding? encoding,
+  }) {
+    return ExportVideoModel(
+      outputFormat: outputFormat ?? this.outputFormat,
+      videoBytes: videoBytes ?? this.videoBytes,
+      imageBytes: imageBytes ?? this.imageBytes,
+      videoDuration: videoDuration ?? this.videoDuration,
+      outputQuality: outputQuality ?? this.outputQuality,
+      encodingPreset: encodingPreset ?? this.encodingPreset,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      colorFilters: colorFilters ?? this.colorFilters,
+      blur: blur ?? this.blur,
+      enableAudio: enableAudio ?? this.enableAudio,
+      devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
+      transform: transform ?? this.transform,
+      customFilter: customFilter ?? this.customFilter,
+      encoding: encoding ?? this.encoding,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is ExportVideoModel &&
+        other.outputFormat == outputFormat &&
+        other.videoBytes == videoBytes &&
+        other.imageBytes == imageBytes &&
+        other.videoDuration == videoDuration &&
+        other.outputQuality == outputQuality &&
+        other.encodingPreset == encodingPreset &&
+        other.startTime == startTime &&
+        other.endTime == endTime &&
+        listEquals(other.colorFilters, colorFilters) &&
+        other.blur == blur &&
+        other.enableAudio == enableAudio &&
+        other.devicePixelRatio == devicePixelRatio &&
+        other.transform == transform &&
+        other.customFilter == customFilter &&
+        other.encoding == encoding;
+  }
+
+  @override
+  int get hashCode {
+    return outputFormat.hashCode ^
+        videoBytes.hashCode ^
+        imageBytes.hashCode ^
+        videoDuration.hashCode ^
+        outputQuality.hashCode ^
+        encodingPreset.hashCode ^
+        startTime.hashCode ^
+        endTime.hashCode ^
+        colorFilters.hashCode ^
+        blur.hashCode ^
+        enableAudio.hashCode ^
+        devicePixelRatio.hashCode ^
+        transform.hashCode ^
+        customFilter.hashCode ^
+        encoding.hashCode;
   }
 }
 
