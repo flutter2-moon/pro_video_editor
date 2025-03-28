@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -225,8 +226,10 @@ class _VideoExportPageState extends State<VideoExportPage> {
           ? []
           : [
               AspectRatio(
-                aspectRatio: _outputVideoInformation?.resolution.aspectRatio ??
-                    1280 / 720,
+                aspectRatio: max(
+                  _outputVideoInformation?.resolution.aspectRatio ?? 0,
+                  1280 / 720,
+                ),
                 child: Video(controller: _controllerPreview),
               ),
               Padding(
