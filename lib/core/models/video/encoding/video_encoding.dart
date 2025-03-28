@@ -7,6 +7,14 @@ import 'mov_encoding_config.dart';
 import 'mp4_encoding_config.dart';
 import 'webm_encoding_config.dart';
 
+export 'avi_encoding_config.dart';
+export 'base_encoding_config.dart';
+export 'gif_encoding_config.dart';
+export 'mkv_encoding_config.dart';
+export 'mov_encoding_config.dart';
+export 'mp4_encoding_config.dart';
+export 'webm_encoding_config.dart';
+
 /// Holds encoding configurations for various video output formats.
 ///
 /// This class provides format-specific settings (e.g., MP4, MOV, GIF)
