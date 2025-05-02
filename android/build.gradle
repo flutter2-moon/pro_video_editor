@@ -2,7 +2,7 @@ group = "ch.waio.pro_video_editor"
 version = "1.0-SNAPSHOT"
 
 buildscript {
-    ext.kotlin_version = "1.8.22"
+    ext.kotlin_version = "2.1.10"
     repositories {
         google()
         mavenCentral()
@@ -15,7 +15,7 @@ buildscript {
     }
 }
 
-allprojects {
+rootProject.allprojects {
     repositories {
         google()
         mavenCentral()
@@ -31,13 +31,23 @@ android {
 
     compileSdk = 35
 
+    lintOptions {
+        disable 'GradleCompatible'
+    }
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11
+        jvmTarget = JavaVersion.VERSION_17
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
     }
 
     sourceSets {
@@ -50,10 +60,10 @@ android {
     }
 
     dependencies {
-        implementation('androidx.annotation:annotation:1.5.0')
-        implementation('com.arthenica:ffmpeg-kit-https:6.0-2.LTS') // Dependency from local Maven repository
-        implementation('com.arthenica:smart-exception-java:0.2.1') // Dependency from Live
-        implementation('com.arthenica:smart-exception-common:0.2.1') // Dependency from Live
+        implementation 'androidx.annotation:annotation:1.5.0'
+        implementation 'com.arthenica:ffmpeg-kit-https:6.0-2.LTS' // Dependency from local Maven repository
+        implementation 'com.arthenica:smart-exception-java:0.2.1' // Dependency from Live
+        implementation 'com.arthenica:smart-exception-common:0.2.1' // Dependency from Live
 
 
         // implementation files('libs/smart-exception-java-0.2.1.jar') Dependency from local Maven repository
@@ -65,9 +75,9 @@ android {
             useJUnitPlatform()
 
             testLogging {
-               events "passed", "skipped", "failed", "standardOut", "standardError"
-               outputs.upToDateWhen {false}
-               showStandardStreams = true
+                events "passed", "skipped", "failed", "standardOut", "standardError"
+                outputs.upToDateWhen {false}
+                showStandardStreams = true
             }
         }
     }
